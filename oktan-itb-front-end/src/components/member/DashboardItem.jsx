@@ -7,7 +7,7 @@ import { useGetCompetitionsQuery } from '../../features/competitions/competition
 
 export const DashboardItemMember = () => {
 
-    const params = {where: '', visible: true, isEnrolled: true}
+    const params = {where: '', visible: true, isEnrolled: false}
     const {data, error, isLoading} = useGetCompetitionsQuery({...params})
 
     return (

@@ -5,10 +5,10 @@ import { BsCaretDownFill, BsFillPersonFill, BsPower, BsFillPaletteFill, BsPalett
 import { MdOutlineArrowBackIosNew } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useLogoutMutation } from '../../features/auth/authApiSlice';
+import { useLogoutMutation } from '../../../features/auth/authApiSlice';
 
-import { destroyCredentials, selectCurrentUser } from '../../features/auth/authSlice'
-import Spinner from '../Spinner';
+import { destroyCredentials, selectCurrentUser } from '../../../features/auth/authSlice'
+import Spinner from '../../Spinner';
 
 
 const Navbar = (props) => {

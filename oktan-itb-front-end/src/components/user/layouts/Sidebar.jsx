@@ -1,5 +1,5 @@
 import React from 'react';
-import Logo from '../../assets/img/logo.png';
+import Logo from '../../../assets/img/logo.png';
 import { BsPerson, BsAward } from 'react-icons/bs'
 import { RiProfileLine } from 'react-icons/ri'
 import { MdOutlineDashboard, MdPayment, MdPayments } from "react-icons/md";
@@ -37,6 +37,10 @@ const Sidebar = () => {
                         <div>
                             <li><div className="text-md font-bold cursor-default">Log Pembayaran</div></li>
                             <li><NavLink to={"/moderator/payments"} className='text-sm'><MdPayments className='text-2xl mr-2' />Riwayat Pembayaran Peserta</NavLink></li>
+                        </div>
+                        <div>
+                            <li><div className="text-md font-bold cursor-default">Kompetisi</div></li>
+                            <li><NavLink to={"/moderator/competitions"} className='text-sm'><BsAward className='text-2xl mr-2' />Daftar Kompetisi</NavLink></li>
                         </div>
                  
 

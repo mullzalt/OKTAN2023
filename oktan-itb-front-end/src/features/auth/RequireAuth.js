@@ -2,12 +2,12 @@ import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import Spinner from '../../components/Spinner'
+import { Layout } from '../../components/user'
+
 import { useGetProfileQuery } from './authApiSlice'
 import { selectCurrentToken, setCredentials } from './authSlice'
 
-
-
-const RequireAuth = () => {
+const RequireAuth = ({children}) => {
   const location = useLocation()
   const dispatch = useDispatch()
 
@@ -30,7 +30,7 @@ const RequireAuth = () => {
 
   return (
     !isError 
-        ? <Outlet/>
+        ? <Layout><Outlet/></Layout>
         : <Navigate to="/login" state={{from: location}} replace/>
         
   )

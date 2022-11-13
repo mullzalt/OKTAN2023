@@ -6,6 +6,14 @@ const { Competition, Participant, Member } = require('../../models')
 const { BASE_URL} = require('../../configs/config')
 
 
+
+exports.createCompetition = asyncHandler(async(req, res) => {
+    const competition = await Competition.create({
+        visible: false
+    })
+})
+
+
 exports.getAllCompetitions = asyncHandler(async(req, res) => {
     const where = req.query.where
     const visible = req.query.visible === 'true'

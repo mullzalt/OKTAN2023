@@ -14,6 +14,9 @@ import EmailVerification from './pages/publics/EmailVerification';
 
 import Dashboard from './pages/user/Dashboard';
 import EmailVerified from './pages/publics/EmailVerified';
+import CreateCompetitions from './pages/moderator/competitions/CreateCompetitions';
+import { CompetitionList } from './pages/moderator';
+import { Layout } from './components/user';
 
 // import Login from './pages/Login';
 // import Register from './pages/Register';
@@ -54,9 +57,18 @@ function App() {
               <Route path='/register' element={<Register />} />
               <Route path='/verifyemail' element={<EmailVerification />} />
               <Route path='/authentication/verified' element={<EmailVerified />} />
+              <Route path='/test' element={<CreateCompetitions />} />
 
               <Route element={< RequireAuth />}>
                   <Route path='/dashboard' element={<Dashboard />}/>
+              </Route>
+
+
+              <Route element={< RequireAuth />}>
+                <Route path='/moderator'>
+                  <Route index element={<Dashboard/>}/>
+                  <Route path='competitions' element={<CompetitionList />}/>
+                </Route>
               </Route>
 
               <Route path="*" element={<NotFound />} />
