@@ -127,7 +127,7 @@ exports.login = asyncHandler(async (req, res) => {
 
     return res.status(200)
         .cookie('refreshToken', refreshToken.token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 })
-        .json({ user: userData.user, profile: userData.profile, accessToken: accessToken })
+        .json({ accessToken: accessToken })
 
 })
 

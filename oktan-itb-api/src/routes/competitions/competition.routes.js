@@ -12,5 +12,9 @@ router.route('/:competitionId').get([
     verifyToken
 ], competition.getCompetitionById)
 
+router.route('/').post([
+    verifyToken, isModerator
+], competition.createCompetition)
+
 
 module.exports = router

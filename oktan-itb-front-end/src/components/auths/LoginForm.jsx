@@ -52,7 +52,7 @@ const LoginForm = () => {
         }
 
         if (isSuccess) {
-            dispatch(setCredentials({ user: data.user, accessToken: data.accessToken, profile: data.profile }))
+            dispatch(setCredentials({ ...data }))
             navigate('/dashboard', { replace: false })
         }
 

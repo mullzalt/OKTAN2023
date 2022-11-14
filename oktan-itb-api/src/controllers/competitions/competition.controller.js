@@ -13,9 +13,7 @@ exports.createCompetition = asyncHandler(async (req, res) => {
     })
         .catch(err => { throw err })
 
-    return res.status(201).json({
-        message: 'Competition created'
-    })
+    return res.status(201).json(competition)
 })
 
 exports.saveCompetition = asyncHandler(async (req, res) => {
@@ -75,6 +73,7 @@ exports.publishCompetition = asyncHandler(async (req, res) => {
     await competition.update({
         visible: setPublish
     })
+
 
     return res.status(200).json(competition)
 })

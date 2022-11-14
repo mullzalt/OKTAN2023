@@ -2,13 +2,14 @@ const asyncHandler = require('express-async-handler')
 
 
 
-exports.isAdmin = asyncHandler(async(req, res, next) => {
+exports.isAdmin = asyncHandler(async (req, res, next) => {
     const user = req.user.user
-    if(!user){
+
+    if (!user) {
         res.status(404)
         throw new Error('User not found')
     }
-    if(user.role === "admin"){
+    if (user.role === "admin") {
         return next()
     }
 
@@ -16,13 +17,14 @@ exports.isAdmin = asyncHandler(async(req, res, next) => {
     throw new Error('Only admin can acess this content!')
 })
 
-exports.isModerator =  asyncHandler(async(req, res, next) => {
+exports.isModerator = asyncHandler(async (req, res, next) => {
     const user = req.user.user
-    if(!user){
+
+    if (!user) {
         res.status(404)
         throw new Error('User not found')
     }
-    if(user.role === "admin" || user.roles === "panitia"){
+    if (user.role === "admin" || user.role === "panitia") {
         return next()
     }
 
@@ -30,13 +32,13 @@ exports.isModerator =  asyncHandler(async(req, res, next) => {
     throw new Error('Only moderator can acess this content!')
 })
 
-exports.isMember =  asyncHandler(async(req, res, next) => {
+exports.isMember = asyncHandler(async (req, res, next) => {
     const user = req.user.user
-    if(!user){
+    if (!user) {
         res.status(404)
         throw new Error('User not found')
     }
-    if(user.role === "peserta"){
+    if (user.role === "peserta") {
         return next()
     }
 
