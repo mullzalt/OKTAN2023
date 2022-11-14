@@ -8,6 +8,7 @@ const memberRouter = require('./users/member.routes')
 router.use('/', authRouter)
 router.use('/users', userRouter)
 router.use('/members', memberRouter)
+router.use('/moderators', require('./users/moderator.routes'))
 
 router.use('/competitions', require('./competitions/competition.routes'))
 

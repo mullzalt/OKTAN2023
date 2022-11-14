@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit"
 
 const authSlice = createSlice({
     name: 'auth',
-    initialState: { user: null, token: null, profile: null },
+    initialState: { user: '', token: '', profile: '' },
     reducers: {
         setCredentials: (state, action) => {
             const { user, accessToken, profile } = action.payload
@@ -11,9 +11,9 @@ const authSlice = createSlice({
             state.profile = profile
         },
         destroyCredentials: (state, action) => {
-            state.user = null
-            state.token = null
-            state.profile = null
+            state.user = ''
+            state.token = ''
+            state.profile = ''
         }
     },
 })

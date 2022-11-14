@@ -5,34 +5,45 @@ import Spinner from '../../components/Spinner'
 import { Layout } from '../../components/user'
 
 import { useGetProfileQuery } from './authApiSlice'
-import { selectCurrentToken, setCredentials } from './authSlice'
+import { selectCurrentToken, selectCurrentUser, setCredentials } from './authSlice'
 
-const RequireAuth = ({children}) => {
+const RequireAuth = ({ children, role }) => {
   const location = useLocation()
   const dispatch = useDispatch()
 
-  const {data, isLoading, isError, isSuccess} = useGetProfileQuery()
-    
-  const token = useSelector(selectCurrentToken) 
+  const { data, isLoading, isError, isSuccess } = useGetProfileQuery()
 
-
+  const token = useSelector(selectCurrentToken)
 
   useEffect(() => {
-    if(isSuccess){
-      dispatch(setCredentials({...data, accessToken: token}))
+    if (isSuccess) {
+      dispatch(setCredentials({ ...data, accessToken: token }))
     }
     return
   }, [isSuccess, data, token])
 
-  if(isLoading){
-    return <Spinner/>
+  const user = useSelector(selectCurrentUser)
+
+  let matchRole
+
+  if (!role) { matchRole = true }
+  if (role === 'moderator') {
+    (user.role === 'admin' || user.role === 'panitia')
+      ? matchRole = true
+      : matchRole = false
+  }
+
+  if (isLoading) {
+    return <Spinner />
   }
 
   return (
-    !isError 
-        ? <Layout><Outlet/></Layout>
-        : <Navigate to="/login" state={{from: location}} replace/>
-        
+    !isError
+      ? matchRole
+        ? <Layout><Outlet /></Layout>
+        : <Navigate to="/dashboard" state={{ from: location }} replace />
+      : <Navigate to="/login" state={{ from: location }} replace />
+
   )
 }
 

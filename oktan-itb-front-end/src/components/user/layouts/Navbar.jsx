@@ -15,24 +15,29 @@ const Navbar = (props) => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
-    const [logout, {isError, isLoading}] = useLogoutMutation()
+    const [logout, { isError, isLoading, isSuccess }] = useLogoutMutation()
 
     const user = useSelector(selectCurrentUser)
 
-    const logoutHandler = async(e) => {
+
+    useEffect(() => {
+        if (isSuccess) {
+            dispatch(destroyCredentials())
+            navigate('/login', { replace: true })
+        }
+    }, [isSuccess, user])
+
+    const logoutHandler = async (e) => {
         e.preventDefault()
         try {
             logout()
-            dispatch(destroyCredentials())
-
-            navigate('/login', {replace: true})
         } catch (error) {
             console.log(error)
         }
     }
 
-    if(isLoading){
-        return <Spinner/>
+    if (isLoading) {
+        return <Spinner />
     }
 
     return (
