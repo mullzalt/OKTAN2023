@@ -21,19 +21,19 @@ const Card = (competition) => {
   const eventEnd = useFormatDate(competition.end_date)
   const price = useCurrencyFormat(competition.entry_fee)
   const fees = competition.payment_method === 'FREE'
-  ? 'GRATIS' 
-  : price
+    ? 'GRATIS'
+    : price
 
-  return(
- 
-      <div className="card card-side bg-base-100 shadow-xl">
-        <div className="card-body grid grid-cols-6">
-          <img className='hidden md:block col-span-1' src={
-          competition.category === 'ISOTERM' 
-          ? IsotermLogoImg
-          : competition.category === 'CRYSTAL'
-          ? CrystalLogoImg : null
-        } alt="Movie"/>
+  return (
+
+    <div className="card card-side bg-base-100 shadow-xl">
+      <div className="card-body grid grid-cols-6">
+        <img className='hidden md:block col-span-1' src={
+          competition.category === 'ISOTERM'
+            ? IsotermLogoImg
+            : competition.category === 'CRYSTAL'
+              ? CrystalLogoImg : null
+        } alt="Movie" />
         <div className='col-span-6 md:col-span-5'>
           <h2 className="card-title font-bold mb-3">{competition.title}</h2>
           <div className="grid grid-cols-12">
@@ -77,26 +77,28 @@ const Card = (competition) => {
             </div>
           </div>
           <div className="card-actions justify-end">
-            <Link to={competition.id} className="btn btn-primary">Detail</Link>
+            <Link to={competition.id + '/edit'} className="btn btn-info text-white">Detail</Link>
+            <Link to={competition.id + '/members'} className="btn btn-primary">Daftar Peserta</Link>
           </div>
         </div>
-        </div>
       </div>
-)}
+    </div>
+  )
+}
 
 
 
-const ModeratorCompetitionItem = ({id}) => {
-  const {data, error, isLoading} = useGetCompetitionByIdQuery(id)
+const ModeratorCompetitionItem = ({ id }) => {
+  const { data, error, isLoading } = useGetCompetitionByIdQuery(id)
   return (
     <React.Fragment>
       <div className='col-span-4'>
-      {isLoading
-            ? <Pulse/>
-            : error
+        {isLoading
+          ? <Pulse />
+          : error
             ? (<>Something went wrong</>)
-            : Card(data) 
-          }
+            : Card(data)
+        }
       </div>
     </React.Fragment>
   )

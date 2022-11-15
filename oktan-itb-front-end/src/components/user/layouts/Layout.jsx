@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import Footer from './Footer';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+
 
 const Layout = ({ children }) => {
     const [theme, setTheme] = useState('light');
@@ -18,6 +23,9 @@ const Layout = ({ children }) => {
                     <div className="drawer-content">
                         <Navbar setTheme={setTheme} theme={theme} />
                         <div className="p-5 min-h-screen">
+                            <ToastContainer
+                                autoClose={3000}
+                            />
                             {children}
                         </div>
                         <Footer />

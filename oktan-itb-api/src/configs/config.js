@@ -1,4 +1,6 @@
 require('dotenv').config()
+const path = require('path')
+
 
 module.exports = {
     NODE_ENV: process.env.NODE_ENV,
@@ -8,6 +10,9 @@ module.exports = {
     REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
     PORT: process.env.PORT || 8000,
     COOKIE_SECRET: process.env.COOKIE_SECRET,
+    __BASEDIR: path.resolve(__dirname, '..', '..'),
+
+
 
     DATABASE: {
         HOST: process.env.DB_HOST,

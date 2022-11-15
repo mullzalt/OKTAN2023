@@ -4,9 +4,9 @@ const { competition } = require('../../controllers')
 const verifyToken = require('../../middlewares/authJwt')
 const { isModerator, isAdmin } = require('../../middlewares/users/rolesValidation')
 
-router.route('/').get([
+router.route('/:competitionId/members/:memberId/').get([
     verifyToken
-], competition.getCompetitions)
+], competition.getAllCompetitions)
     .post([
         verifyToken, isModerator
     ], competition.createCompetition)

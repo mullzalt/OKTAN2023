@@ -7,7 +7,7 @@ import { useGetCompetitionsQuery } from '../../features/competitions/competition
 
 export const DashboardItemMember = () => {
 
-    const params = { where: '', visible: true, isEnrolled: false }
+    const params = { where: '', drafted: false, enrolled: false }
     const { data, error, isLoading } = useGetCompetitionsQuery({ ...params })
 
     return (
@@ -17,7 +17,7 @@ export const DashboardItemMember = () => {
                     ? <div>Loading...</div>
                     : error ? <div>Something went wrong, please refresh</div>
                         : data ? data?.map(comp => {
-                            return <CompetitionCardItems competition={comp} />
+                            return <CompetitionCardItems id={comp.id} />
                         })
                             : null}
             </div>

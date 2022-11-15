@@ -2,11 +2,15 @@ import React from 'react'
 import { useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { BiPlusMedical, BiTrash } from 'react-icons/bi'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { RichTextEditor } from '../../editor'
 import { useDateFormatYMD } from '../../hooks/useFormatDate'
 
-const CompetitionForm = ({ competition }) => {
 
+
+const CompetitionForm = ({ competition }) => {
+    const navigate = useNavigate()
 
     const { register, setValue, getValues, control, handleSubmit, reset, trigger, setError } = useForm({
         defaultValues: {
@@ -42,7 +46,17 @@ const CompetitionForm = ({ competition }) => {
     }
 
     const onSubmit = (data) => {
-        console.log(data)
+        const subThemeIds = getValues('competition_sub_themes').map((value) => {
+            return value.id
+        })
+
+        const subThemeNames = getValues('competition_sub_themes').map((value) => {
+            return value.name
+        })
+        toast.success('wow so easy')
+        console.log({ ...data, subThemeId: subThemeIds, subThemeName: subThemeNames })
+
+        navigate(-1)
     }
 
 
@@ -50,6 +64,7 @@ const CompetitionForm = ({ competition }) => {
 
     return (
         <React.Fragment>
+
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="pb-3">
                     <div className="form-control py-2">
@@ -90,7 +105,7 @@ const CompetitionForm = ({ competition }) => {
                         <span className="flex-shrink mx-4 text-gray-400">Sub Tema</span>
                         <div className="flex-grow border-t border-gray-400"></div>
                         <button
-                            onClick={() => append({ name: '' })}
+                            onClick={() => append({ id: '', name: '' })}
                             type='button'
                             className="btn btn-success btn-square flex-shrink mx-4">
                             <BiPlusMedical className='text-xl text-white' />
@@ -225,6 +240,7 @@ const CompetitionForm = ({ competition }) => {
                             </div>
                         </div>
                     </div>
+
                     <div className="form-control py-2">
                         <div className="md:grid md:grid-cols-12">
                             <label className="label md:col-span-2">Biaya Pendaftaran</label>
@@ -234,6 +250,7 @@ const CompetitionForm = ({ competition }) => {
                                 className="input input-bordered md:col-span-10 w-full" />
                         </div>
                     </div>
+
                 </div>
                 <hr className='mb-4' />
                 <div className="mb-4">
@@ -248,10 +265,17 @@ const CompetitionForm = ({ competition }) => {
                     <button
                         onClick={() => reset()}
                         type='button'
-                        className='btn btn-error text-white'>Discard Change</button>
-                    <button type='button' className='btn btn-success text-white'>Simpan</button>
-                    <input type={'submit'} className='btn btn-primary text-white' value={'Publish'} />
-                    <button type='button' className='btn btn-warning text-white'>Draft</button>
+                        className='btn btn-error text-white'>Kembalikan Semula</button>
+                    <input type='submit' className='btn btn-success text-white' value={'Simpan Perubahan'} />
+                    {competition.visible === false
+                        ? <button type='button' className='btn btn-primary text-white'>Publish</button> :
+                        competition.visible === true ?
+                            <button type='button' className='btn btn-warning '>Draft</button>
+                            : null
+
+                    }
+
+
                 </div>
             </form>
         </React.Fragment>

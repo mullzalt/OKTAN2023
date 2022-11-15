@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import Spinner from '../../components/Spinner'
@@ -14,6 +14,7 @@ const RequireAuth = ({ children, role }) => {
   const { data, isLoading, isError, isSuccess } = useGetProfileQuery()
 
   const token = useSelector(selectCurrentToken)
+  let matchRole
 
   useEffect(() => {
     if (isSuccess) {
@@ -24,11 +25,10 @@ const RequireAuth = ({ children, role }) => {
 
   const user = useSelector(selectCurrentUser)
 
-  let matchRole
 
   if (!role) { matchRole = true }
-  if (role === 'moderator') {
-    (user.role === 'admin' || user.role === 'panitia')
+  if (isSuccess && role === 'moderator') {
+    (user?.role === 'admin' || user?.role === 'panitia')
       ? matchRole = true
       : matchRole = false
   }

@@ -43,7 +43,8 @@ function App() {
             <Route path='/moderator'>
               <Route index element={<Dashboard />} />
               <Route path='competitions' element={<CompetitionList />} />
-              <Route path='competitions/:id' element={<CompetitionDetail />} />
+              <Route path='competitions/:id/edit' element={<CompetitionDetail />} />
+              <Route path='competitions/:id/members' element={<CompetitionDetail />} />
             </Route>
           </Route>
 

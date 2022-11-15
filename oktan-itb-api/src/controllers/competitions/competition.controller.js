@@ -16,6 +16,42 @@ exports.createCompetition = asyncHandler(async (req, res) => {
     return res.status(201).json(competition)
 })
 
+
+const saveOrInsertSubTheme = async (ids, names, competitionId) => {
+
+    if (!ids && !names) { return }
+
+    let newNames = names
+    let newIds = ids
+    let isAnArray = (Array.isArray(names)) && (Array.isArray(ids))
+
+    if (!isAnArray) {
+        newNames = new Array(newNames)
+        newIds = new Array(newIds)
+    }
+
+    let subThemes = newNames.map((name, index) => {
+        return {
+            id: ids[index],
+            name: names[index],
+            competitionId: competitionId
+        }
+    })
+
+
+
+    await SubTheme.destroy({
+        where: { competitionId: competitionId }
+    })
+
+    const competition_sub_themes = await SubTheme.bulkCreate(subThemes, {
+        fields: ['id', 'name', 'competitionId'],
+        updateOnDuplicate: ['name']
+    })
+
+    return competition_sub_themes
+}
+
 exports.saveCompetition = asyncHandler(async (req, res) => {
     const competitionId = req.params.competitionId
     const {
@@ -23,10 +59,18 @@ exports.saveCompetition = asyncHandler(async (req, res) => {
         entry_fee, category, payment_method,
         min_participant, max_participant,
         register_due, register_start, start_date, end_date,
+
+        subThemeId, subThemeName
     } = req.body
 
+    const upsertSubTheme = await saveOrInsertSubTheme(subThemeId, subThemeName, competitionId)
+
+
     const competition = await Competition.findOne({
-        where: { id: competitionId }
+        where: { id: competitionId },
+        include: [{
+            model: SubTheme
+        }]
     })
         .catch(err => { throw err })
 
@@ -50,14 +94,14 @@ exports.saveCompetition = asyncHandler(async (req, res) => {
     })
         .catch(err => { throw err })
 
+
+
+
     return res.status(200).json(competition)
-
-
 })
 
 exports.publishCompetition = asyncHandler(async (req, res) => {
     const competitionId = req.params.competitionId
-    const { publish } = req.body
 
 
     const competition = await Competition.findOne({
@@ -74,120 +118,96 @@ exports.publishCompetition = asyncHandler(async (req, res) => {
         visible: setPublish
     })
 
-
     return res.status(200).json(competition)
 })
 
 
+exports.getCompetitions = asyncHandler(async (req, res) => {
+    const { where, drafted, category, enrolled } = req.query
 
-exports.getAllCompetitions = asyncHandler(async (req, res) => {
-    const where = req.query.where
-    const visible = req.query.visible === 'true'
-        ? true
-        : req.query.visible === 'false'
-            ? false : true
+    const titleLike = where ? { title: { [Op.like]: `%${where}%` } } : null
+    const categoryEq = category ? { category: { [Op.eq]: category } } : null
+    const isDrafted = drafted ?
+        drafted === 'true'
+            ? { visible: { [Op.eq]: false } }
+            : drafted === 'false'
+                ? { visible: { [Op.eq]: true } }
+                : null
+        : null
+    const isEnrolled = enrolled ?
+        enrolled === 'true' ? true
+            : enrolled === 'false' ? false
+                : false
+        : null
 
-    const isEnrolled = req.query.isEnrolled === 'true'
-        ? { '$member.id$': { [Op.eq]: req.user.profile.id } }
-        : req.query.isEnrolled === 'false'
-            ? { '$member.id$': { [Op.eq]: req.user.profile.id } }
-            : {}
+    let enrollConditon = null
 
-    var condition = where || req.query.visible
-        ? {
-            [Op.or]: [
-                { title: { [Op.like]: `%${where}%` } },
-                { category: { [Op.like]: `%${where}%` } },
-            ],
-            [Op.and]: [
-                { visible: visible },
-                isEnrolled
-            ]
-        }
-        : null;
+    if (isEnrolled === true || isEnrolled === false) {
+        enrollConditon = { '$member.id$': { [Op.eq]: req.user.profile.id } }
+    }
 
+    const condition = {
+        [Op.and]: [
+            titleLike, categoryEq, isDrafted, enrollConditon
+        ]
+    }
 
     const competitions = await Competition.findAll({
         where: condition,
-        order: [['register_start', 'ASC']],
-        include: [
-            {
-                model: Member,
-                as: 'member',
-                attributes: []
-            },
-            {
-                model: SubTheme,
-            }
-        ],
+        attributes: ['id'],
+        include: [{ model: Member, as: 'member', attributes: [] }]
     })
-        .then((data) => {
+        .then(async (data) => {
+            if (isEnrolled === false) {
+                const ids = data.map(v => {
+                    return v.id
+                })
+
+                return await Competition.findAll({
+                    where: {
+                        [Op.and]: [
+                            titleLike, categoryEq, isDrafted, { id: { [Op.notIn]: ids } }
+                        ]
+                    },
+                    attributes: ['id']
+                })
+            }
+
             return data
         })
-        .catch((err) => { throw err })
-
-    if (req.query.isEnrolled === 'false') {
-        let newCondition = {
-            [Op.or]: [],
-            [Op.and]: [
-                { visible: true },]
-        }
-        let test = competitions.map(comp => newCondition[Op.or].push({ id: { [Op.ne]: comp.id } }))
-        const notEnrolled = await Competition.findAll(
-            { where: newCondition, condition }
-        )
-        return res.status(200).json(notEnrolled)
-    }
+        .catch(err => { throw err })
 
 
-    return res.status(200).json(competitions)
+    res.status(200)
+    return res.json(competitions)
 })
-
 
 exports.getCompetitionById = asyncHandler(async (req, res) => {
     const competitionId = req.params.competitionId
 
-    const participant = req.query.participant
-
-    const getMe = participant
-        ? { model: Member, as: 'member', attributes: [] }
-        : { model: Member, as: 'member' }
+    const checkEnroll = req.query.checkEnroll
 
     const competition = await Competition.findOne({
         where: { id: competitionId },
-        include: [getMe,
-            {
-                model: SubTheme,
-            }
+        include: [
+            { model: SubTheme },
+            { model: Member, as: 'member' }
         ]
     })
         .then(async (data) => {
-            let participantData
-
-            if (participant) {
-                let isParticipating = await Participant.findOne({
-                    where: {
-                        competitionId: data.id,
-                        memberId: participant
-                    }
+            if (checkEnroll) {
+                const memberIds = data.member.map(v => {
+                    return v.id
                 })
 
-                participantData = isParticipating
-                    ? isParticipating : null
-            }
+                const isParticipating = memberIds.includes(req.user.profile.id)
 
-
-            return {
-                ...data.toJSON(),
-                participant: participantData,
+                return { ...data.toJSON(), isParticipating }
             }
+            return data
         })
         .catch(err => { throw err })
 
-    if (!competition) {
-        res.status(404)
-        throw new Error('Competition not found')
-    }
-
-    return res.status(200).json(competition)
+    res.status(200)
+    return res.json(competition)
 })

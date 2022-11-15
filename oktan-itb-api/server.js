@@ -10,12 +10,13 @@ const { errorHandler } = require('./src/middlewares/errorHandler');
 const ApiRouter = require('./src/routes');
 const corsOptions = require('./src/configs/corsOptions');
 const credentials = require('./src/middlewares/credentials');
+const { __BASEDIR } = require('./src/configs/config');
 
 
 
 
-global.__basedir = __dirname
 const app = express();
+
 
 app.use(credentials)
 app.use(cookieParser());
@@ -27,13 +28,6 @@ app.use(express.urlencoded({ extended: true }));
 db.initDatabase()
 
 app.use('/public', express.static(path.join(__dirname, '/public')))
-// app.use('/v1', require('./src/routes/auth.routes'))
-// app.use('/v1/users', require('./src/routes/user.routes'))
-// app.use('/v1/members', require('./src/routes/member.routes'))
-// app.use('/v1/', require('./src/routes/invoice.routes'))
-// app.use('/v1/moderators', require('./src/routes/moderator.routes'))
-// app.use('/v1/competitions', require('./src/routes/competition.routes'))
-
 app.use('/v1/', ApiRouter)
 
 app.use(errorHandler)
