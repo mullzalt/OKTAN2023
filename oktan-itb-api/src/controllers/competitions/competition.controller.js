@@ -3,7 +3,7 @@ const { fn, col } = require('sequelize')
 const { Op } = require('../../models/db')
 
 const { Competition, Participant, Member, SubTheme } = require('../../models')
-const { BASE_URL } = require('../../configs/config')
+
 
 
 
@@ -37,8 +37,6 @@ const saveOrInsertSubTheme = async (ids, names, competitionId) => {
             competitionId: competitionId
         }
     })
-
-
 
     await SubTheme.destroy({
         where: { competitionId: competitionId }
@@ -93,9 +91,6 @@ exports.saveCompetition = asyncHandler(async (req, res) => {
         end_date: end_date,
     })
         .catch(err => { throw err })
-
-
-
 
     return res.status(200).json(competition)
 })
@@ -195,6 +190,8 @@ exports.getCompetitionById = asyncHandler(async (req, res) => {
         ]
     })
         .then(async (data) => {
+            const { isRegisterOpen, isEventStarted } = checkCompetitionDates({ competition: data })
+
             if (checkEnroll) {
                 const memberIds = data.member.map(v => {
                     return v.id
@@ -202,12 +199,44 @@ exports.getCompetitionById = asyncHandler(async (req, res) => {
 
                 const isParticipating = memberIds.includes(req.user.profile.id)
 
-                return { ...data.toJSON(), isParticipating }
+                return { ...data.toJSON(), isParticipating, isRegisterOpen, isEventStarted }
             }
-            return data
+            return { ...data.toJSON(), isRegisterOpen, isEventStarted }
         })
         .catch(err => { throw err })
 
     res.status(200)
     return res.json(competition)
 })
+
+
+const checkCompetitionDates = ({ competition }) => {
+    const { register_due, register_start, start_date, end_date } = competition
+
+    let isRegisterOpen = true
+    let isEventStarted = true
+
+    if (!register_due || !register_start || !start_date || !end_date) {
+        isRegisterOpen = false
+        isEventStarted = false
+        return { isRegisterOpen, isEventStarted }
+    }
+
+    const rO = new Date(register_start)
+    const rC = new Date(register_due)
+    const eO = new Date(start_date)
+    const eC = new Date(end_date)
+    const dateNow = new Date()
+
+
+    if (dateNow < rO || dateNow > rC) {
+        isRegisterOpen = false
+    }
+
+    if (dateNow < eO || dateNow > eC) {
+        isEventStarted = false
+    }
+
+
+    return { isRegisterOpen, isEventStarted }
+}

@@ -3,7 +3,6 @@ const mysql = require('mysql2/promise')
 const { DATABASE, NODE_ENV } = require("../configs/config");
 
 
-
 const initDatabase = async () => {
     const { DB, HOST, USER, PASSWORD } = DATABASE
     const connection = await mysql.createConnection({
@@ -64,6 +63,8 @@ module.exports = {
     SubTheme: require('./competition/subTheme.model'),
 
     Invoice: require('./invoice/invoice.model'),
-    BankAccount: require('./invoice/bankAccount.model')
+    BankAccount: require('./invoice/bankAccount.model'),
+
+    MemberNotification: require('./messages/memberNotification.model')
 
 }
