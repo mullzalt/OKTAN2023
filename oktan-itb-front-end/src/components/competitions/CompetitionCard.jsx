@@ -24,6 +24,12 @@ const Card = (competition) => {
         ? 'GRATIS'
         : price
 
+    const closeBadge = () => {
+        return (
+            <span className='badge badge-warning p-2 ml-4'>DITUTUP</span>
+        )
+    }
+
     return (
         <div className='my-4 w-full px-1 sm:w-1/2 lg:w-1/3 lg:px-4'>
             <Link to={`/competitions/${competition.id}`} className="card bg-base-100 shadow-xl">
@@ -45,6 +51,7 @@ const Card = (competition) => {
                     <div className='mt-2 card-actions justify-between gap-3'>
                         <div className='text-center'>
                             <span className='font-bold text-lg'>Pendaftaran</span>
+
                         </div>
                         <div className='text-center'>
                             <AiOutlineClockCircle className='inline-block text-lg' />
@@ -87,7 +94,7 @@ const Card = (competition) => {
                     <div className=' card-actions justify-end'>
 
                         <span className='ml-2 text-xl font-semibold text-orange-500'>
-                            {fees}
+                            {!competition.isRegisterOpen ? closeBadge() : fees}
                         </span>
                     </div>
 
@@ -100,9 +107,7 @@ const Card = (competition) => {
 
 const CompetitionCardItems = ({ id }) => {
 
-    const { data, isLoading, isError, isFetching, } = useGetCompetitionByIdQuery(id)
-
-
+    const { data, isLoading, isError, isFetching, } = useGetCompetitionByIdQuery({ id: id, checkEnroll: true })
 
     if (isLoading) {
         return <Pulse />

@@ -14,9 +14,11 @@ import EmailVerification from './pages/publics/EmailVerification';
 
 import Dashboard from './pages/user/Dashboard';
 import EmailVerified from './pages/publics/EmailVerified';
-import CreateCompetitions from './pages/moderator/competitions/CreateCompetitions';
 import CompetitionDetail from './pages/moderator/competitions/CompetitionDetail';
-import { CompetitionList } from './pages/moderator';
+import { CompetitionList, ParticipantList } from './pages/moderator';
+import MyCompetitions from './pages/member/MyCompetitions';
+import CompetitionListsMember from './pages/member/CompetitionLists';
+import CompetitionDetailsMember from './pages/member/CompetitionDetails';
 
 
 function App() {
@@ -32,19 +34,21 @@ function App() {
           <Route path='/register' element={<Register />} />
           <Route path='/verifyemail' element={<EmailVerification />} />
           <Route path='/authentication/verified' element={<EmailVerified />} />
-          <Route path='/test' element={<CreateCompetitions />} />
 
           <Route element={< RequireAuth />}>
             <Route path='/dashboard' element={<Dashboard />} />
+            <Route path='/mycompetitions' element={<MyCompetitions />} />
+            <Route path='/competitions' element={<CompetitionListsMember />} />
+            <Route path='/competitions/:id' element={<CompetitionDetailsMember />} />
           </Route>
 
 
-          <Route element={< RequireAuth role={'moderator'} />}>
+          <Route element={< RequireAuth />}>
             <Route path='/moderator'>
               <Route index element={<Dashboard />} />
               <Route path='competitions' element={<CompetitionList />} />
               <Route path='competitions/:id/edit' element={<CompetitionDetail />} />
-              <Route path='competitions/:id/members' element={<CompetitionDetail />} />
+              <Route path='competitions/:id/members' element={<ParticipantList />} />
             </Route>
           </Route>
 

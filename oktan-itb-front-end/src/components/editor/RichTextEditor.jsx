@@ -35,27 +35,12 @@ const formats = [
 
 
 const RichTextEditor = ({ placeholder, onChange, value, readOnly, header }) => {
-  const [widgetState, setWidgetState] = useState({
-    value: value || ''
-  })
-
-
-  const handleChange = (value) => {
-    setWidgetState({ value: value })
-    if (typeof onChange === 'function') {
-      onChange(widgetState.value)
-    }
-  }
-
   return (
     <div>
-      <div className="m-2">
-        <span>{header}</span>
-      </div>
       <ReactQuill
         theme={readOnly ? 'bubble' : 'snow'}
-        value={widgetState.value}
-        onChange={handleChange}
+        value={value}
+        onChange={onChange}
         modules={modules}
         formats={formats}
         placeholder={placeholder}

@@ -8,7 +8,6 @@ const { fn } = require("sequelize");
 const { BASE_URL } = require("../configs/config");
 
 
-
 exports.createBankAccount = async (req, res) => {
     const { name, bankName, cardNumber } = req.body
 

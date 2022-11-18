@@ -8,7 +8,7 @@ const { isModerator, isAdmin } = require('../../middlewares/users/rolesValidatio
 
 router.route('/')
     .post([
-        verifyToken, isModerator
+        verifyToken, isAdmin
     ], bankAccount.createBankAccount)
     .get([
         verifyToken,

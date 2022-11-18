@@ -56,7 +56,7 @@ exports.saveCompetition = asyncHandler(async (req, res) => {
         title, description,
         entry_fee, category, payment_method,
         min_participant, max_participant,
-        register_due, register_start, start_date, end_date,
+        register_due, register_start, start_date, end_date, precations, exam_type,
 
         subThemeId, subThemeName
     } = req.body
@@ -77,6 +77,8 @@ exports.saveCompetition = asyncHandler(async (req, res) => {
     await competition.update({
         title: title,
         description: description,
+        precations: precations,
+        exam_type: exam_type,
 
         entry_fee: entry_fee,
         category: category,
@@ -190,6 +192,11 @@ exports.getCompetitionById = asyncHandler(async (req, res) => {
         ]
     })
         .then(async (data) => {
+            if (!data) {
+                res.status(404)
+                return
+            }
+
             const { isRegisterOpen, isEventStarted } = checkCompetitionDates({ competition: data })
 
             if (checkEnroll) {
@@ -198,14 +205,26 @@ exports.getCompetitionById = asyncHandler(async (req, res) => {
                 })
 
                 const isParticipating = memberIds.includes(req.user.profile.id)
+                let participantData
 
-                return { ...data.toJSON(), isParticipating, isRegisterOpen, isEventStarted }
+                if (isParticipating) {
+                    participantData = await Participant.findOne({
+                        where: { memberId: req.user.profile.id, competitionId: data.id }
+                    })
+                }
+
+
+                return { ...data.toJSON(), isParticipating, isRegisterOpen, isEventStarted, participant_data: participantData }
             }
+
+            res.status(200)
             return { ...data.toJSON(), isRegisterOpen, isEventStarted }
         })
         .catch(err => { throw err })
 
-    res.status(200)
+
+
+
     return res.json(competition)
 })
 

@@ -41,7 +41,7 @@ exports.getParticipants = asyncHandler(async (req, res) => {
         ]
     }
 
-    const file_path = BASE_URL + 'public/uploads/' + competitionCategory + '/'
+    const file_path = BASE_URL + 'public/uploads/participantCard/' + competitionCategory + '/'
 
 
     const participant = await Participant.findAndCountAll({

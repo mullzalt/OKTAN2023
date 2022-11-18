@@ -4,21 +4,23 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { BiPlusMedical, BiTrash } from 'react-icons/bi'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { useSaveCompetitionMutation } from '../../../features/competitions/competitionSlice'
 import { RichTextEditor } from '../../editor'
 import { useDateFormatYMD } from '../../hooks/useFormatDate'
 
 
 
-const CompetitionForm = ({ competition }) => {
-    const navigate = useNavigate()
-
+const CompetitionForm = ({ competition, onSave }) => {
     const { register, setValue, getValues, control, handleSubmit, reset, trigger, setError } = useForm({
         defaultValues: {
             category: competition.category || 'ISOTERM',
             title: competition.title || '',
             description: competition.description || '',
+            precations: competition.precations || '',
             min_participant: competition.min_participant || 1,
             max_participant: competition.max_participant || 1,
+
+            exam_type: competition.exam_type,
 
             register_start: useDateFormatYMD(competition.register_start) || '',
             register_due: useDateFormatYMD(competition.register_due) || '',
@@ -39,13 +41,19 @@ const CompetitionForm = ({ competition }) => {
 
     useEffect(() => {
         register('description')
+        register('precations')
+
     }, [register])
 
     const onDescChange = (desc) => {
         setValue('description', desc)
     }
 
-    const onSubmit = (data) => {
+    const onPrecautionsChange = (prec) => {
+        setValue('precations', prec)
+    }
+
+    const onSubmit = async (data) => {
         const subThemeIds = getValues('competition_sub_themes').map((value) => {
             return value.id
         })
@@ -53,13 +61,10 @@ const CompetitionForm = ({ competition }) => {
         const subThemeNames = getValues('competition_sub_themes').map((value) => {
             return value.name
         })
-        toast.success('wow so easy')
-        console.log({ ...data, subThemeId: subThemeIds, subThemeName: subThemeNames })
+        const dataToSave = { ...data, subThemeId: subThemeIds, subThemeName: subThemeNames }
 
-        navigate(-1)
+        onSave(dataToSave)
     }
-
-
 
 
     return (
@@ -85,6 +90,36 @@ const CompetitionForm = ({ competition }) => {
                                             value={'CRYSTAL'}
                                             className="radio mr-2" />
                                         <span className="label-text">CRYSTAL</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="form-control py-2">
+                        <div className="md:grid md:grid-cols-12">
+                            <label className="label md:col-span-2">Tipe Lomba</label>
+                            <div className="md:col-span-10">
+                                <div className="flex gap-3">
+                                    <label className="label cursor-pointer">
+                                        <input {...register('exam_type')}
+                                            type="radio"
+                                            value={'CBT'}
+                                            className="radio mr-2" />
+                                        <span className="label-text">CBT</span>
+                                    </label>
+                                    <label className="label cursor-pointer">
+                                        <input {...register('exam_type')}
+                                            type="radio"
+                                            value={'PAPER'}
+                                            className="radio mr-2" />
+                                        <span className="label-text">PAPER</span>
+                                    </label>
+                                    <label className="label cursor-pointer">
+                                        <input {...register('exam_type')}
+                                            type="radio"
+                                            value={'ABSTRACT'}
+                                            className="radio mr-2" />
+                                        <span className="label-text">ABSTRAK</span>
                                     </label>
                                 </div>
                             </div>
@@ -261,7 +296,18 @@ const CompetitionForm = ({ competition }) => {
                         value={getValues('description')}
                     />
                 </div>
-                <div className="flex justify-end gap-2">
+
+                <hr className='mb-4' />
+                <div className="mb-4">
+                    <div className='font-semibold'>Persyaratan Kompetisi</div>
+                    <RichTextEditor
+                        placeholder={'Tuliskan persyaratan....'}
+                        onChange={onPrecautionsChange}
+                        value={getValues('precations')}
+                    />
+                </div>
+
+                <div className="flex  gap-2">
                     <button
                         onClick={() => reset()}
                         type='button'
@@ -272,7 +318,6 @@ const CompetitionForm = ({ competition }) => {
                         competition.visible === true ?
                             <button type='button' className='btn btn-warning '>Draft</button>
                             : null
-
                     }
 
 

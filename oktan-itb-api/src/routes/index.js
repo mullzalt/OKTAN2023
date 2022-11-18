@@ -15,6 +15,9 @@ router.use('/competitions', require('./competitions/competition.routes'))
 router.use('/competitions', require('./competitions/enroll.routes'))
 router.use('/competitions', require('./competitions/participant.routes'))
 
+router.use('/submissions', require('./competitions/submission.routes'))
+router.use('/notifications', require('./notifications/notifications.routes'))
+
 router.use('/banks', require('./payments/banks.routes'))
 router.use('/invoices', require('./payments/invoice.routes'))
 

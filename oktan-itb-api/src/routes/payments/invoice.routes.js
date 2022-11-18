@@ -2,6 +2,7 @@ const router = require('express').Router()
 
 const { invoice } = require('../../controllers')
 const verifyToken = require('../../middlewares/authJwt')
+const { uploadFile } = require('../../middlewares/fileHandler')
 const { isModerator, isAdmin } = require('../../middlewares/users/rolesValidation')
 
 
@@ -26,7 +27,7 @@ router.route('/members/:memberId/competitions/:competitionId/proof')
         verifyToken
     ], invoice.submitPayments)
     .put([
-        verifyToken
+        verifyToken, uploadFile
     ], invoice.uploadPaymentProof)
     .delete([
         verifyToken
@@ -35,17 +36,17 @@ router.route('/members/:memberId/competitions/:competitionId/proof')
 router.route('/moderators')
     .get([
         verifyToken,
-        // isModerator
+        isModerator
     ], invoice.getInvoicesLog)
 
 router.route('/moderators/:invoiceId')
     .get([
         verifyToken,
-        // isModerator
+        isModerator
     ], invoice.getInvoiceById)
     .put([
         verifyToken,
-        // isModerator
+        isModerator
     ], invoice.verifyPayments)
 
 module.exports = router

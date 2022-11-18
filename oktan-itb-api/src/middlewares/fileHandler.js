@@ -33,7 +33,7 @@ const uploadFile = asyncHandler(async (req, res, next) => {
         if (!req.file) {
             throw new Error('Please Upload a file!')
         }
-
+        console.log(req.file)
         next()
     })
 })
@@ -51,8 +51,9 @@ const isFormatValid = async (formats, filename) => {
 
 const saveFile = async (pathFrom, pathTo) => {
     try {
+        let destination
         if (!fs.existsSync(pathTo)) {
-            const destination = path.dirname(pathTo)
+            destination = path.dirname(pathTo)
             fs.mkdirSync(destination, { recursive: true })
         }
 
@@ -66,7 +67,7 @@ const saveFile = async (pathFrom, pathTo) => {
 
 const fileUploadHandler = async ({ files, nameFormats, folders, fileFormats }) => {
     const file = files
-    const nameFormat = nameFormats ? nameFormats : file.originalname
+    const nameFormat = nameFormats ? nameFormats : file?.originalname
     const folder = folders
     const formatsType = fileFormats
 
@@ -80,7 +81,7 @@ const fileUploadHandler = async ({ files, nameFormats, folders, fileFormats }) =
     }
 
     const formats = formatsType
-    const ext = await isFormatValid(formats, file.originalname)
+    const ext = await isFormatValid(formats, file?.originalname || file?.filename)
 
     if (!ext) {
         fs.unlinkSync(file.path)
@@ -96,7 +97,7 @@ const fileUploadHandler = async ({ files, nameFormats, folders, fileFormats }) =
     await saveFile(pathFrom, pathTo)
     if (!saveFile) {
         fs.unlinkSync(pathFrom)
-        throw new Error("Filed to save file")
+        throw new Error("Failed to save file")
     }
 
 

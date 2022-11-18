@@ -7,11 +7,16 @@ import { Layout } from '../../components/user'
 import { useGetProfileQuery } from './authApiSlice'
 import { selectCurrentToken, selectCurrentUser, setCredentials } from './authSlice'
 
-const RequireAuth = ({ children, role }) => {
+const RequireAuth = ({ children }) => {
   const location = useLocation()
   const dispatch = useDispatch()
 
-  const { data, isLoading, isError, isSuccess } = useGetProfileQuery()
+  const { data, isLoading, isError, isSuccess } = useGetProfileQuery({}, {
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+    refetchOnReconnect: true,
+
+  })
 
   const token = useSelector(selectCurrentToken)
   let matchRole
@@ -23,15 +28,7 @@ const RequireAuth = ({ children, role }) => {
     return
   }, [isSuccess, data, token])
 
-  const user = useSelector(selectCurrentUser)
 
-
-  if (!role) { matchRole = true }
-  if (isSuccess && role === 'moderator') {
-    (user?.role === 'admin' || user?.role === 'panitia')
-      ? matchRole = true
-      : matchRole = false
-  }
 
   if (isLoading) {
     return <Spinner />
@@ -39,9 +36,7 @@ const RequireAuth = ({ children, role }) => {
 
   return (
     !isError
-      ? matchRole
-        ? <Layout><Outlet /></Layout>
-        : <Navigate to="/dashboard" state={{ from: location }} replace />
+      ? <Layout><Outlet /></Layout>
       : <Navigate to="/login" state={{ from: location }} replace />
 
   )

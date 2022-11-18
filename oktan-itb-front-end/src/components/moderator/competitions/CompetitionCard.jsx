@@ -89,7 +89,7 @@ const Card = (competition) => {
 
 
 const ModeratorCompetitionItem = ({ id }) => {
-  const { data, error, isLoading } = useGetCompetitionByIdQuery(id)
+  const { data, error, isLoading } = useGetCompetitionByIdQuery({ id: id })
   return (
     <React.Fragment>
       <div className='col-span-4'>

@@ -1,9 +1,8 @@
 import CompetitionList from "./competitions/CompetitionList"
-import CreateCompetitions from "./competitions/CreateCompetitions"
+import ParticipantList from "./competitions/ParticipantList"
 
 
 export {
-    CreateCompetitions,
-    CompetitionList
-    
+    CompetitionList,
+    ParticipantList
 }

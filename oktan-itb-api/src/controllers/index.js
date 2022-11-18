@@ -9,6 +9,8 @@ module.exports = {
     submission: require('./competitions/submission.controller'),
 
     invoice: require('./payments/invoice.controller'),
-    bankAccount: require('./payments/bankAccount.controller')
+    bankAccount: require('./payments/bankAccount.controller'),
+
+    memberNotification: require('./news/memberNotification.controller')
 }
 

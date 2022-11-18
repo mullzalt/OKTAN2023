@@ -22,6 +22,7 @@ exports.createBankAccount = asyncHandler(async (req, res) => {
 exports.getBankAccounts = asyncHandler(async (req, res) => {
     const { where, page, size } = req.query
 
+
     const { limit, offset, currentPage } = makePagination(page, size)
 
     const getWhere = where ? {

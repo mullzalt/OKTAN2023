@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { BiArrowBack } from 'react-icons/bi';
 import { BsCaretDownFill, BsFillPersonFill, BsPower, BsFillPaletteFill, BsPalette2 } from 'react-icons/bs';
 import { MdOutlineArrowBackIosNew } from 'react-icons/md';
+import { RiNotification2Line } from 'react-icons/ri';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useLogoutMutation } from '../../../features/auth/authApiSlice';
@@ -62,6 +63,16 @@ const Navbar = (props) => {
                         <li className={"outline-base-content overflow-hidden rounded-lg outline-2 outline-offset-2 mb-3" + (props.theme === 'winter' ? ' outline' : '')}><button data-theme="winter" className='bg-base-100 text-base-content w-full cursor-pointer font-sans' onClick={() => props.setTheme('winter')}><BsPalette2 />Winter</button></li>
                     </ul>
                 </div> */}
+
+                <label tabIndex={0} className="btn btn-ghost btn-circle">
+                    <div className="indicator">
+                        <RiNotification2Line />
+                        <span className="badge badge-sm indicator-item badge-error text-white">8</span>
+                    </div>
+                </label>
+
+
+
                 <div className="dropdown dropdown-end">
                     <label tabIndex={0} className="btn btn-ghost">
                         {user?.username ? user.username : null}

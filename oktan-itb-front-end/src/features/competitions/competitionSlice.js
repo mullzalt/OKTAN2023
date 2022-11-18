@@ -14,14 +14,35 @@ export const competitionSlice = apiSlice.injectEndpoints({
         }),
 
         getCompetitionById: builder.query({
-            query: (id) => {
+            query: (payload) => {
                 return {
-                    url: `/competitions/${id}`,
+                    url: `/competitions/${payload.id}`,
+                    params: { checkEnroll: payload.checkEnroll || '' }
                 }
             }
         }),
 
         saveCompetition: builder.mutation({
+            query: ({ id, body }) => {
+                return {
+                    url: `/competitions/${id}`,
+                    method: 'PUT',
+                    body: body
+                }
+            }
+        }),
+
+        createEmptyCompetitions: builder.mutation({
+            query: ({ id, body }) => {
+                return {
+                    url: `/competitions/${id}`,
+                    method: 'PUT',
+                    body: body
+                }
+            }
+        }),
+
+        toogleArchiveCompetitions: builder.mutation({
             query: ({ id, body }) => {
                 return {
                     url: `/competitions/${id}`,
@@ -35,5 +56,8 @@ export const competitionSlice = apiSlice.injectEndpoints({
 
 export const {
     useGetCompetitionsQuery,
-    useGetCompetitionByIdQuery
+    useGetCompetitionByIdQuery,
+    useCreateEmptyCompetitionsMutation,
+    useSaveCompetitionMutation,
+    useToogleArchiveCompetitionsMutation
 } = competitionSlice

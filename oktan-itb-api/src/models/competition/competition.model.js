@@ -27,6 +27,13 @@ const Competition = db.sequelize.define("competition", {
         type: db.DataTypes.ENUM('FREE', 'REQUIRED', 'LATER'),
         defaultValue: 'FREE'
     },
+    precations: {
+        type: db.DataTypes.TEXT
+    },
+    exam_type: {
+        type: db.DataTypes.ENUM('CBT', 'PAPER', 'ABSTRACT'),
+        defaultValue: 'CBT'
+    },
     min_participant: {
         type: db.DataTypes.INTEGER,
         defaultValue: 1
