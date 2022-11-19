@@ -9,13 +9,26 @@ export const participantSlice = apiSlice.injectEndpoints({
                 const id = competitionId
                 return {
                     url: `/competitions/${id}/members/`,
+                    method: 'GET',
                     params: { where, status, paid, size, page }
                 }
             }
+        }),
+
+        getParticipantById: builder.query({
+            query: ({ competitionId, memberId }) => {
+                return {
+                    url: `/competitions/${competitionId}/members/${memberId}`,
+                    method: 'GET'
+                }
+            }
         })
+
+
     })
 })
 
 export const {
-    useGetParticipantsQuery
+    useGetParticipantsQuery,
+    useGetParticipantByIdQuery
 } = participantSlice

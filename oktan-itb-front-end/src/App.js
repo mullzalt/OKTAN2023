@@ -19,6 +19,7 @@ import { CompetitionList, ParticipantList } from './pages/moderator';
 import MyCompetitions from './pages/member/MyCompetitions';
 import CompetitionListsMember from './pages/member/CompetitionLists';
 import CompetitionDetailsMember from './pages/member/CompetitionDetails';
+import EnrollCompetition from './pages/member/EnrollCompetition';
 
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
             <Route path='/mycompetitions' element={<MyCompetitions />} />
             <Route path='/competitions' element={<CompetitionListsMember />} />
             <Route path='/competitions/:id' element={<CompetitionDetailsMember />} />
+            <Route path='/competitions/:id/enroll' element={<EnrollCompetition />} />
           </Route>
 
 

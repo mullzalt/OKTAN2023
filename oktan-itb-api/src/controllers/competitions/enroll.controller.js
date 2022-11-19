@@ -5,7 +5,7 @@ const { Op, fn, col, UUIDV4 } = require("sequelize");
 const { BASE_URL, __BASEDIR } = require('../../configs/config');
 const { fileUploadHandler } = require('../../middlewares/fileHandler');
 
-const { Competition, Participant, Invoice, Member, ParticipantMember, MemberNotification } = require("../../models");
+const { Competition, Participant, Invoice, Member, ParticipantMember, MemberNotification, SubTheme } = require("../../models");
 
 exports.getEnrollmentData = asyncHandler(async (req, res) => {
     const { competition, member, enroll, isEnrolled, cardFile, messages } = await enrollMiddlewares(req, res)
@@ -47,7 +47,7 @@ exports.enrollCompetiton = asyncHandler(async (req, res) => {
         memberId: member.id,
         competitionId: competition.id,
         status: 'PENDING',
-        isAllowedToJoin: isAllowedToJoin
+        allowedToJoin: isAllowedToJoin
     })
         .catch(err => { throw err })
 
@@ -66,14 +66,14 @@ exports.uploadEnrollCard = asyncHandler(async (req, res) => {
 
     const upload = await fileUploadHandler({
         files: req.file,
-        nameFormats: `IDCARDS_PARTICIPANT_[${teamName}]_IDCARDS_[${competition.id}]_[${member.id}]`,
+        nameFormats: `IDCARDS_PARTICIPANT_[${teamName}]_[${competition.title}]_[${competition.category}]_[${member.name}]`,
         folders: `participantCard/${competition.category}`,
         fileFormats: ['pdf']
     })
 
     await enroll.update({
         card_file: upload.filename,
-        status: 'PENDING',
+        status: 'ENROLLED',
     })
 
     return res.json({ message: 'Upload card successfull', data: enroll })
@@ -238,7 +238,8 @@ const enrollMiddlewares = async (req, res) => {
     const memberId = req.params.memberId
 
     const competition = await Competition.findOne({
-        where: { id: competitionId }
+        where: { id: competitionId },
+        include: [{ model: SubTheme }]
     })
 
     if (!competition) {
@@ -278,7 +279,9 @@ const enrollMiddlewares = async (req, res) => {
         where: { competitionId: competitionId, memberId: memberId, about: 'ENROLLMENT', type: 'DENIED' }
     })
         .then(data => {
-            msgs.push(data)
+            if (data) {
+                msgs.push(data)
+            }
             return data
         })
         .catch(err => { throw err })
@@ -286,7 +289,14 @@ const enrollMiddlewares = async (req, res) => {
     const isEnrolled = enroll ? true : false
 
     const hasNullMessage = checkEmptyEnrollFields({ enrollData: enroll })
-    const nullMessage = hasNullMessage ? msgs.push(hasNullMessage) : null
+
+    hasNullMessage.map(col => {
+        msgs.push({
+            type: 'MISSING_VALUES'
+        })
+    })
+
+
     const cardFile = enroll?.card_file ? `${BASE_URL}public/uploads/participantCard/${competition.category}/${encodeURIComponent(enroll.card_file.trim())}` : null
     const filePath = enroll?.card_file ? path.join(__BASEDIR, 'public/uploads/participantCard', competition.category, enroll.card_file) : null
 
@@ -306,23 +316,20 @@ const enrollMiddlewares = async (req, res) => {
 
 const checkEmptyEnrollFields = ({ enrollData }) => {
 
-    if (!enrollData) return null
+    let emptyCols = []
 
-    const hasNull = Object.values(enrollData).every(value => {
-        if (value === null || value === '') {
-            return true
+    const checkNull = (target) => {
+        for (var key in target) {
+            if (target[key] === null)
+                emptyCols.push(key)
         }
-
-        return false
-    })
-
-    if (hasNull) return {
-        message: "Empty Values, please complete forms",
-        about: "MAIN",
-        type: "MISSING_VALUES"
     }
 
-    return null
+    if (enrollData) {
+        checkNull(enrollData.dataValues)
+    }
+
+    return emptyCols
 }
 
 const checkCompetitionDates = ({ competition }) => {

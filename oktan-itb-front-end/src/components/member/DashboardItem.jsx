@@ -22,7 +22,7 @@ const EnrollmentCard = ({ count, title, link, icon }) => {
 
 
                 <div className="card-actions justify-end">
-                    <Link to={link} className="btn btn-outline btn-warning">Lihat lebih lanjut</Link>
+                    <Link to={link} className="btn btn-outline btn-info">Lihat lebih lanjut</Link>
                 </div>
             </div>
         </div>
@@ -40,7 +40,7 @@ export const DashboardItemMember = ({ profile }) => {
 
     return (
         <React.Fragment>
-            <div className='bg-base-300 p-5 text-grey-800 mb-5'>
+            <div className='bg-primary p-5 text-gray-100 mb-5'>
                 <span className='text-lg font-bold'>Hallo</span>, selamat datang kembali {profile.name}!!
             </div>
 

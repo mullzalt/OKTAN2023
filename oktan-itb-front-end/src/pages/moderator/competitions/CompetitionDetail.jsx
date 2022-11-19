@@ -25,11 +25,6 @@ const CompetitionDetail = () => {
 
     useEffect(() => {
 
-        if (isSaveLoading) {
-            console.log('loading')
-            toast.warn('Tunggu ya..')
-        }
-
         if (isSaveError) {
             toast.error('Gagal memperbaharui data')
             refetch()

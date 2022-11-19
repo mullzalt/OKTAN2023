@@ -31,6 +31,7 @@ const uploadFile = asyncHandler(async (req, res, next) => {
             })
         }
         if (!req.file) {
+            res.status(422)
             throw new Error('Please Upload a file!')
         }
         console.log(req.file)

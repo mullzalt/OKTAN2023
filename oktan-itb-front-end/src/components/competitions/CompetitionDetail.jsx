@@ -7,12 +7,13 @@ import { useFormatDate } from '../hooks/useFormatDate'
 
 
 
-const SubmitButton = () => {
+export const SubmitButton = () => {
     return (
         <button className='btn btn-primary' > Submit Papper</button>
     )
 }
-const EnrollButton = ({ id }) => {
+
+export const EnrollLinkButton = () => {
     return (
         <Link
             to={'enroll'}
@@ -20,13 +21,30 @@ const EnrollButton = ({ id }) => {
     )
 }
 
-const ProfileButton = () => {
+export const ProfileLinkButton = ({ messages }) => {
+    let haveEmpty = false
+
+    const emptyMessage = messages.map(message => {
+        if (message.type === 'MISSING_VALUES') {
+            return haveEmpty = true
+        }
+    })
+
     return (
-        <button className='btn btn-primary'>View Profile</button>
+        <div className="indicator">
+            {haveEmpty ?
+                <span className="indicator-item badge badge-error text-white">!</span> : null
+            }
+
+            <Link to={'enroll'} className='btn btn-primary'>
+                View Profile
+            </Link>
+        </div>
+
     )
 }
 
-const StatusBadge = ({ data }) => {
+export const StatusBadge = ({ data }) => {
     const isAllowed = data.allowedToJoin
     const status = data.status
 
@@ -51,6 +69,7 @@ const StatusBadge = ({ data }) => {
 
     if (status === 'ENROLLED') {
         dispalyMessage.status = <p className='text-info font-bold'>Menunggu verivikasi...</p>
+        dispalyMessage.tooltipAllowed = 'Sedang menunggu konfirmasi dari panitia'
     }
 
 
@@ -61,6 +80,7 @@ const StatusBadge = ({ data }) => {
 
     )
 }
+
 
 const EmptySubThemes = ({ tag }) => {
     return (
@@ -74,12 +94,11 @@ const EmptySubThemes = ({ tag }) => {
     )
 }
 
-const SubThemesList = ({ sub_themes }) => {
-
+export const SubThemesList = ({ subThemes }) => {
 
     return (
         <dl className="text-gray-600 ">
-            {sub_themes.map((list) => {
+            {subThemes.map((list) => {
                 return (
                     <div className="flex flex-col pb-3 border p-3">
                         <dd className="text font-semibold">{list.name}</dd>
@@ -90,27 +109,84 @@ const SubThemesList = ({ sub_themes }) => {
     )
 }
 
-const EnventsTime = ({ competition }) => {
+export const RichTextDropDown = ({ texts, header }) => {
+    return (
+        <div className="py-2">
+            <div tabIndex={0} className="collapse collapse-arrow border-base-300 bg-base-200 rounded-box">
+                <input type="checkbox" />
+                <div className="collapse-title text-lg font-semibold">
+                    {header}
+                </div>
+                <div className="collapse-content bg-base-100 p-0">
+                    <RichTextEditor
+                        value={texts}
+                        readOnly={true}
+                    />
+                </div>
+            </div>
+        </div>
+    )
+
+}
+
+
+export const EnventsTimeDropDown = ({ competition }) => {
     const registerStart = useFormatDate(competition.register_start)
     const registerEnd = useFormatDate(competition.register_due)
     const eventStart = useFormatDate(competition.start_date)
     const eventEnd = useFormatDate(competition.end_date)
 
     return (
-        <dl className="text-gray-600 ">
-            <div className="flex flex-col pb-3 border p-3">
-                <dt className="mb-1 text-gray-500 md:text-lg "><BsClockHistory className='inline-block text-xl mr-4' />Pembukaan Daftar</dt>
-                <dd className="text font-semibold text-lg p-2">{registerStart}</dd>
+        <div className="py-2">
+            <div tabIndex={0} className="collapse collapse-arrow border-base-300 bg-base-200 rounded-box">
+                <input type="checkbox" />
+                <div className="collapse-title text-lg font-semibold">
+                    Pelaksanaan
+                </div>
+                <div className="collapse-content bg-base-100 p-0">
+                    <dl className="text-gray-600 ">
+
+                        <div className="flex flex-col pb-3 border p-3">
+                            <dt className="mb-1 text-gray-500 md:text-lg "><BsClockHistory className='inline-block text-xl mr-4' />Pembukaan Daftar</dt>
+                            <dd className="text font-semibold text-lg p-2">{registerStart}</dd>
+                        </div>
+
+                        <div className="flex flex-col pb-3 border p-3">
+                            <dt className="mb-1 text-gray-500 md:text-lg "><BsHourglassSplit className='inline-block text-xl mr-4' /> Penutupan Daftar</dt>
+                            <dd className="text font-semibold text-lg p-2">{registerEnd}</dd>
+                        </div>
+
+                        <div className="flex flex-col pb-3 border p-3">
+                            <dt className="mb-1 text-gray-500 md:text-lg "><BsCalendar3 className='inline-block text-xl mr-4' /> Pelaksanaan</dt>
+                            <dd className="text font-semibold text-lg p-2">{eventStart} s/d {eventEnd}</dd>
+
+                        </div>
+                    </dl>
+                </div>
             </div>
-            <div className="flex flex-col pb-3 border p-3">
-                <dt className="mb-1 text-gray-500 md:text-lg "><BsHourglassSplit className='inline-block text-xl mr-4' /> Penutupan Daftar</dt>
-                <dd className="text font-semibold text-lg p-2">{registerEnd}</dd>
+        </div>
+
+
+    )
+}
+
+
+export const SubThemeDropDown = ({ tag, subThemes }) => {
+    return (
+        <div className="py-2">
+            <div tabIndex={0} className="collapse collapse-arrow border-base-300 bg-base-200 rounded-box">
+                <input type="checkbox" />
+                <div className="collapse-title text-lg font-semibold">
+                    {tag}
+                </div>
+                <div className="collapse-content bg-base-100 p-0">
+                    {subThemes.length > 0
+                        ? <SubThemesList subThemes={subThemes} />
+                        : <EmptySubThemes tag={tag} />}
+                </div>
             </div>
-            <div className="flex flex-col pb-3 border p-3">
-                <dt className="mb-1 text-gray-500 md:text-lg "><BsCalendar3 className='inline-block text-xl mr-4' /> Pelaksanaan</dt>
-                <dd className="text font-semibold text-lg p-2">{eventStart} s/d {eventEnd}</dd>
-            </div>
-        </dl>
+        </div>
+
     )
 }
 
@@ -118,112 +194,14 @@ const ClosedEvent = () => ({
 
 })
 
-const CompetitionDetail = ({ competition }) => {
-    const payment_method = competition.payment_method
-    const entryFee = useCurrencyFormat(competition.entry_fee)
-    const fee = payment_method === 'FREE' ? 'GRATIS' : entryFee
-
-    const subThemeTag = {
-        ISOTERM: 'Sub-tema',
-        CRYSTAL: 'Materi'
-    }
-
-    const examTag = {
-        ABSTRACT: 'Pengumpulan abstrak',
-        PAPER: 'Pengumpulan karya ilmiah',
-        CBT: 'Test Berbasis Komputer (CBT)'
-    }
+export const CompetitionFees = ({ price, paymentMethod }) => {
+    const fees = useCurrencyFormat(price)
+    const priceTag = paymentMethod === 'FREE' ? 'GRATIS' : fees
 
     return (
-        <div>
-            <div className="flex justify-between py-2">
-                <div>
-                    <h2 className='text-xl font-bold'>
-                        {competition.category}
-                        <span className='text-xs font-semibold inline-block mx-2'>
-                            {'( '}{examTag[competition.exam_type]}{' )'}
-                        </span>
-                    </h2>
-
-                    <p>{competition.title}</p>
-
-                </div>
-                <div>
-                    {/* Badge here and profie */}
-                    {competition.isParticipating && competition.participant_data ? <StatusBadge data={competition.participant_data} /> : null}
-                    {competition.isParticipating ? <ProfileButton /> : null}
-
-                </div>
-            </div>
-
-            <div className="py-2">
-                <div tabIndex={0} className="collapse collapse-arrow border-base-300 bg-base-200 rounded-box">
-                    <input type="checkbox" />
-                    <div className="collapse-title text-lg font-semibold">
-                        Deskripsi
-                    </div>
-                    <div className="collapse-content bg-base-100 p-0">
-                        <RichTextEditor
-                            value={competition.description}
-                            readOnly={true}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="py-2">
-                <div tabIndex={0} className="collapse collapse-arrow border-base-300 bg-base-200 rounded-box">
-                    <input type="checkbox" />
-                    <div className="collapse-title text-lg font-semibold">
-                        {subThemeTag[competition.category]}
-                    </div>
-                    <div className="collapse-content bg-base-100 p-0">
-                        {competition.competition_sub_themes.length > 0 ? <SubThemesList sub_themes={competition.competition_sub_themes} /> : <EmptySubThemes tag={subThemeTag[competition.category]} />}
-                    </div>
-                </div>
-            </div>
-
-            <div className="py-2">
-                <div tabIndex={0} className="collapse collapse-arrow border-base-300 bg-base-200 rounded-box">
-                    <input type="checkbox" />
-                    <div className="collapse-title text-lg font-semibold">
-                        Pelaksanaan
-                    </div>
-                    <div className="collapse-content bg-base-100 p-0">
-                        <EnventsTime competition={competition} />
-                    </div>
-                </div>
-            </div>
-
-            <div className="py-2">
-                <div tabIndex={0} className="collapse collapse-arrow border-base-300 bg-base-200 rounded-box">
-                    <input type="checkbox" />
-                    <div className="collapse-title text-lg font-semibold">
-                        Syarat dan Ketentuan
-                    </div>
-                    <div className="collapse-content bg-base-100 p-0">
-                        <RichTextEditor
-                            value={competition.precations}
-                            readOnly={true}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <h2 className='text-xl font-semibold text-right text-orange-600 py-2'>
-                {!competition.isParticipating && competition.isRegisterOpen ?
-                    fee : null
-                }
-            </h2>
-
-            <div className="flex justify-end gap-2 py-2">
-                {!competition.isParticipating && competition.isRegisterOpen ?
-                    <EnrollButton /> : null
-                }
-
-            </div>
-        </div>
+        <h2 className='text-xl font-semibold text-right text-orange-600 py-2'>
+            {priceTag}
+        </h2>
     )
 }
 
-export default CompetitionDetail
