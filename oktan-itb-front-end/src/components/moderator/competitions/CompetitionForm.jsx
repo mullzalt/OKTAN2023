@@ -10,7 +10,7 @@ import { useDateFormatYMD } from '../../hooks/useFormatDate'
 
 
 
-const CompetitionForm = ({ competition, onSave }) => {
+const CompetitionForm = ({ competition, onSave, publishHandle }) => {
     const { register, setValue, getValues, control, handleSubmit, reset, trigger, setError } = useForm({
         defaultValues: {
             category: competition.category || 'ISOTERM',
@@ -257,7 +257,7 @@ const CompetitionForm = ({ competition, onSave }) => {
                                         <label className="label cursor-pointer">
                                             <input {...register('payment_method')}
                                                 type="radio"
-                                                value={'LATER'}
+                                                value={'REQUIRED'}
                                                 className="radio mr-2" />
                                             <span className="label-text">BAYAR DI MUKA</span>
                                         </label>
@@ -266,7 +266,7 @@ const CompetitionForm = ({ competition, onSave }) => {
                                         <label className="label cursor-pointer">
                                             <input {...register('payment_method')}
                                                 type="radio"
-                                                value={'REQUIRED'}
+                                                value={'LATER'}
                                                 className="radio mr-2" />
                                             <span className="label-text">BAYAR NANTI</span>
                                         </label>
@@ -314,9 +314,9 @@ const CompetitionForm = ({ competition, onSave }) => {
                         className='btn btn-error text-white'>Kembalikan Semula</button>
                     <input type='submit' className='btn btn-success text-white' value={'Simpan Perubahan'} />
                     {competition.visible === false
-                        ? <button type='button' className='btn btn-primary text-white'>Publish</button> :
+                        ? <button type='button' onClick={publishHandle} className='btn btn-primary text-white'>Publish</button> :
                         competition.visible === true ?
-                            <button type='button' className='btn btn-warning '>Draft</button>
+                            <button type='button' onClick={publishHandle} className='btn btn-warning '>Draft</button>
                             : null
                     }
 

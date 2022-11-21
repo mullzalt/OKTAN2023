@@ -110,7 +110,7 @@ exports.uploadPapper = asyncHandler(async (req, res) => {
 
     await submission.update({
         attachment: upload.filename,
-        status: 'PENDING'
+        status: 'SENT'
     })
 
     return res.json({ message: 'Upload paper successfull', data: submission })
@@ -122,11 +122,6 @@ exports.removePapper = asyncHandler(async (req, res) => {
     if (!isSubmitted) {
         res.status(403)
         throw new Error('You have sumbitted')
-    }
-
-    if (!isOwner) {
-        res.status(403)
-        throw new Error('Only owner can perform such actions')
     }
 
     if (!filePath) {
@@ -153,8 +148,29 @@ exports.removePapper = asyncHandler(async (req, res) => {
 })
 
 exports.getPappers = asyncHandler(async (req, res) => {
-    const { where, status, competition, size, page } = req.query
+    const { where, status, size, page } = req.query
     const { currentPage, limit, offset } = makePagination(page, size)
+
+    const getWhere = where ? {
+        [Op.or]: [
+            { title: { [Op.like]: `%${where}%` } },
+            { theme: { [Op.like]: `%${where}%` } },
+            { '$participant.team_name$': { [Op.like]: `%${where}%` } },
+            { '$participant.member.name$': { [Op.like]: `%${where}%` } },
+            { '$participant.competition.title$': { [Op.like]: `%${where}%` } },
+            { '$participant.competition.category$': { [Op.like]: `%${where}%` } },
+        ]
+    } : null
+
+    const getStatus = status ? { status: status } : null
+
+
+    const condition = {
+        [Op.and]: [
+            getWhere,
+            getStatus
+        ]
+    }
 
     const submissions = await Submission.findAndCountAll({
         include: [
@@ -162,10 +178,22 @@ exports.getPappers = asyncHandler(async (req, res) => {
                 model: Participant,
                 include: [{ model: Member }, { model: Competition, attributes: ['id', 'title', 'category'] }]
             }
-        ]
+        ],
+        where: condition,
+        limit: limit,
+        offset: offset
     })
+        .then(data => {
+            const result = paginationResults({ totalItem: data.count, limit: limit, rows: data.rows, currentPage: currentPage })
 
-    return res.json({ submissions })
+            return { size: limit, ...result }
+        })
+        .catch(err => {
+            res.status(500)
+            throw err
+        })
+
+    return res.json({ ...submissions })
 })
 
 exports.getPapperById = asyncHandler(async (req, res) => {
@@ -173,18 +201,9 @@ exports.getPapperById = asyncHandler(async (req, res) => {
 
     const submissions = await Submission.findOne({
         where: { participantId: participant.id },
-        include: [
-            {
-                model: Participant,
-                include: [{ model: Member }, { model: Competition, attributes: ['id', 'title', 'category'] }]
-            }
-        ]
     })
-        .then(data => {
-            return { ...data.toJSON() }
-        })
 
-    return res.json({ ...submissions, file_url: fileUrl })
+    return res.json({ ...submissions.dataValues, file_url: fileUrl })
 })
 
 exports.reviewPapper = asyncHandler(async (req, res) => {
@@ -197,7 +216,8 @@ exports.reviewPapper = asyncHandler(async (req, res) => {
     }
 
     await submission.update({
-        score: score
+        score: score,
+        status: 'REVIEWED'
     })
 
     const newMessage = await upsertMessage({

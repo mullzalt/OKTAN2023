@@ -5,10 +5,12 @@ import { Link } from 'react-router-dom'
 import CompetitionCardItems from '../competitions/CompetitionCard';
 import { useGetCompetitionsQuery } from '../../features/competitions/competitionSlice';
 import NotificationWrapper from '../notifications/NotificationWrapper';
-import { BiBadge, BiBadgeCheck, BiMoney } from 'react-icons/bi';
+import { BiBadge, BiBadgeCheck, BiMoney, BiNotification, BiBell } from 'react-icons/bi';
+import Notification, { NotificationCard } from '../notifications/Notification';
+import { useGetMyInvoicesQuery } from '../../features/competitions/invoiceSlice';
 
 
-const EnrollmentCard = ({ count, title, link, icon }) => {
+const EnrollmentCard = ({ count, title, link, icon, children }) => {
 
     return (
         <div className="card col-span-12 md:col-span-6 lg:col-span-4  border border-gray-600">
@@ -23,6 +25,7 @@ const EnrollmentCard = ({ count, title, link, icon }) => {
 
                 <div className="card-actions justify-end">
                     <Link to={link} className="btn btn-outline btn-info">Lihat lebih lanjut</Link>
+                    {children}
                 </div>
             </div>
         </div>
@@ -36,7 +39,14 @@ export const DashboardItemMember = ({ profile }) => {
     const { data: isoterms, error: isoError, isLoading: isoLoading } = useGetCompetitionsQuery({ ...notEnrolled })
 
     const enrolled = { where: '', drafted: false, enrolled: true }
-    const { data: enrolledComp, error: ecError, isLoading: isEcLoading } = useGetCompetitionsQuery({ ...notEnrolled })
+    const { data: enrolledComp, error: ecError, isLoading: isEcLoading } = useGetCompetitionsQuery({ ...enrolled })
+
+    const { data: invoiceData,
+        isLoading: invoiceLoading,
+        isError: invoiceError
+    } = useGetMyInvoicesQuery({ memberId: profile.id })
+
+
 
     return (
         <React.Fragment>
@@ -53,7 +63,9 @@ export const DashboardItemMember = ({ profile }) => {
                                 count={isoterms.length}
                                 link={'/competitions'}
                                 icon={<BiBadge />}
-                            /> : null
+                            />
+
+                            : null
                 }
 
                 {
@@ -62,20 +74,24 @@ export const DashboardItemMember = ({ profile }) => {
                             <EnrollmentCard
                                 title={'Lomba yang kamu ikuti:'}
                                 count={enrolledComp.length}
-                                link={'/mycompetitions'}
+                                link={'/competitions'}
                                 icon={<BiBadgeCheck />}
-                            /> : null
+                            />
+
+                            : null
                 }
 
                 {
-                    isEcLoading ? <>...</> : ecError ? <>Something went wrong</> :
-                        enrolledComp ?
+                    invoiceLoading ? <>...</> : invoiceError ? <>Something went wrong</> :
+                        invoiceData ?
                             <EnrollmentCard
                                 title={'Tagihan Pembayaran:'}
-                                count={enrolledComp.length}
-                                link={'/mycompetitions'}
+                                count={invoiceData.length}
+                                link={'/invoices'}
                                 icon={<BiMoney />}
-                            /> : null
+                            />
+
+                            : null
                 }
 
             </div>

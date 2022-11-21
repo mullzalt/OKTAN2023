@@ -4,16 +4,57 @@ import { Link, useParams } from 'react-router-dom'
 import Spinner from '../../../components/loadings/Spinner'
 import Pagination from '../../../components/Pagination'
 
-import TableContainer, { EmptyMessage, ItemCounters, SearchBar } from '../../../components/tables/TableContainer'
+import TableContainer, { EmptyMessage, FilterRadio, ItemCounters, SearchBar } from '../../../components/tables/TableContainer'
 import { useGetCompetitionByIdQuery } from '../../../features'
 import { useGetParticipantsQuery } from '../../../features/competitions/participantSlice'
+
+const StatusBadge = ({ status }) => {
+    const badge = {
+        status: '',
+        className: 'badge'
+    }
+
+    if (status === 'ACTIVE') {
+        badge.status = 'VERIFIED'
+        badge.className = 'badge badge-success p-4 text-white'
+    }
+    if (status === 'ENROLLED') {
+        badge.status = 'PLEASE REVIEW'
+        badge.className = 'badge badge-warning p-4'
+    }
+    if (status === 'PENDING') {
+        badge.status = 'REJECTED'
+        badge.className = 'badge badge-error p-4 text-white'
+    }
+
+
+    return (
+        <span className={badge.className}>{badge.status}</span>
+    )
+}
+
+const AdministrationBadge = ({ isAllowed }) => {
+    const label = isAllowed ? 'OK' : 'BELUM BAYAR'
+
+    const className = isAllowed ? 'badge badge-success p-2 text-sm text-white' : 'badge badge-warning p-4 text-sm'
+
+    return (
+        <div className={className}>{label}</div>
+    )
+}
+
+const statusOptions = [
+    { title: 'VERIFIED', type: 'success', value: 'ACTIVE' },
+    { title: 'VERIFY', type: 'warning', value: 'ENROLLED' },
+    { title: 'BELUM UPLOAD', type: '', value: 'PENDING' },
+]
 
 
 const ParticipantList = () => {
     const { id } = useParams()
     const [queryParams, setQueryParams] = useState({
         where: '',
-        status: '',
+        status: 'ENROLLED',
         paid: '',
         page: 1,
         size: 10
@@ -46,6 +87,16 @@ const ParticipantList = () => {
                     )
                 }} />
 
+            <FilterRadio
+                onChange={e => setQueryParams(prev => ({
+                    ...prev,
+                    status: e.target.value
+                }))}
+                selected={queryParams.status}
+                options={statusOptions}
+                name={'status'}
+            />
+
             {
                 isLoading
                     ? <Spinner message={'Mengambil data peserta'} />
@@ -55,7 +106,7 @@ const ParticipantList = () => {
                             :
                             <div className='mt-9'>
                                 <TableContainer
-                                    headers={['Nama Team', 'Asal', 'Ketua', 'pembina', 'file', '']}
+                                    headers={['Nama Team', 'Asal', 'Ketua', 'pembina', 'administrasi', 'status', 'file', '']}
                                     rows={data.rows.map((par, index) => {
                                         return {
                                             id: par.id,
@@ -63,8 +114,10 @@ const ParticipantList = () => {
                                                 par.team_name,
                                                 par.member.institute, par.member.name,
                                                 par.mentor_name || <i className='text-gray-400 select-none'>kosong</i>,
+                                                <AdministrationBadge isAllowed={par.allowedToJoin} />,
+                                                <StatusBadge status={par.status} />,
                                                 <a className='btn btn-s btn-info text-white link-hover' href={par.file_url} target={'_blank'} >Download</a>,
-                                                <Link className='btn btn-xs btn-ghost'>Review →</Link>,
+                                                <Link to={par.member.id} className='btn btn-xs btn-ghost'>Review →</Link>,
                                             ]
                                         }
                                     })} />

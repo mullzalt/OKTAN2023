@@ -7,7 +7,25 @@ const { isModerator, isAdmin } = require('../../middlewares/users/rolesValidatio
 router.route('/:memberId')
     .get([
         verifyToken
-    ], memberNotification.getNotifications)
+    ], memberNotification.getNotificationsByMembers)
+
+router.route('/')
+    .post([
+        verifyToken, isModerator
+    ], memberNotification.createAnnoucement)
+    .put([
+        verifyToken
+    ], memberNotification.sendNotification)
+    .get([
+        verifyToken
+    ], memberNotification.getMainNotification)
+
+router.route('/:notificationId')
+    .delete([
+        verifyToken, isModerator
+    ], memberNotification.deleteNotifications)
+
+
 
 
 

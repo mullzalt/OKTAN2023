@@ -5,13 +5,13 @@ const { Op, fn, col, UUIDV4 } = require("sequelize");
 const { BASE_URL, __BASEDIR } = require('../../configs/config');
 const { fileUploadHandler } = require('../../middlewares/fileHandler');
 
-const { Competition, Participant, Invoice, Member, ParticipantMember, MemberNotification, SubTheme } = require("../../models");
+const { Competition, Participant, Invoice, Member, ParticipantMember, MemberNotification, SubTheme, Submission } = require("../../models");
 
 exports.getEnrollmentData = asyncHandler(async (req, res) => {
-    const { competition, member, enroll, isEnrolled, cardFile, messages } = await enrollMiddlewares(req, res)
+    const { competition, member, enroll, isEnrolled, cardFile, messages, submission, isSubmitted } = await enrollMiddlewares(req, res)
 
     res.status(200)
-    return res.json({ member, competition, enroll, isEnrolled, file: cardFile, messages })
+    return res.json({ member, competition, enroll, isEnrolled, file: cardFile, messages, submission, isSubmitted })
 })
 
 exports.enrollCompetiton = asyncHandler(async (req, res) => {
@@ -32,7 +32,6 @@ exports.enrollCompetiton = asyncHandler(async (req, res) => {
 
     if (payement_method === 'REQUIRED') {
         isAllowedToJoin = false
-
     }
 
     if (payement_method === 'FREE') {
@@ -40,7 +39,7 @@ exports.enrollCompetiton = asyncHandler(async (req, res) => {
     }
 
     if (payement_method === 'LATER') {
-        isAllowedToJoin = true
+        isAllowedToJoin = false
     }
 
     const createEnroll = await Participant.create({
@@ -74,6 +73,15 @@ exports.uploadEnrollCard = asyncHandler(async (req, res) => {
     await enroll.update({
         card_file: upload.filename,
         status: 'ENROLLED',
+    })
+
+    const newMessage = await upsertMessage({
+        competitionId: competition.id,
+        memberId: member.id,
+        about: 'ENROLLMENT',
+        type: 'NEW',
+        messages: '',
+        actions: 'DELETE'
     })
 
     return res.json({ message: 'Upload card successfull', data: enroll })
@@ -181,7 +189,7 @@ exports.updateStatus = asyncHandler(async (req, res) => {
 
     if (rejects) {
         const updateEnroll = await enroll.update({
-            status: 'ENROLLED'
+            status: 'PENDING'
         })
         const newMessage = await upsertMessage({
             competitionId: competition.id,
@@ -209,17 +217,28 @@ exports.updateStatus = asyncHandler(async (req, res) => {
         return res.json({ message: 'Successfully accepts request', team: updateEnroll, notify: newMessage })
     }
 
+    res.status(422)
     throw new Error('Please enter an action')
 
 })
 
-const upsertMessage = async ({ competitionId, memberId, about, type, messages }) => {
+const upsertMessage = async ({ competitionId, memberId, about, type, messages, actions }) => {
     return await MemberNotification.findOne({
-        where: { competitionId: competitionId, memberId: memberId, about: about, type: type }
+        where: { competitionId: competitionId, memberId: memberId, about: about }
     })
         .then(async (data) => {
+            if (data && actions === 'DELETE') {
+                data.destroy()
+                return
+            }
+
+            if (actions === 'DELETE') {
+                return
+            }
+
             if (data) return await data.update({
-                message: messages
+                message: messages,
+                type: type
             })
 
             return await MemberNotification.create({
@@ -270,13 +289,20 @@ const enrollMiddlewares = async (req, res) => {
             throw err
         })
 
+    const submission = await Submission.findOne({
+        where: { participantId: enroll.id }
+    }).catch(err => {
+        res.status(500)
+        throw err
+    })
+
     let msgs = []
 
     const { isRegisterOpen } = checkCompetitionDates({ competition: competition })
     const canRegister = isRegisterOpen
 
     const messages = await MemberNotification.findOne({
-        where: { competitionId: competitionId, memberId: memberId, about: 'ENROLLMENT', type: 'DENIED' }
+        where: { competitionId: competitionId, memberId: memberId, about: 'ENROLLMENT' }
     })
         .then(data => {
             if (data) {
@@ -287,12 +313,14 @@ const enrollMiddlewares = async (req, res) => {
         .catch(err => { throw err })
 
     const isEnrolled = enroll ? true : false
+    const isSubmitted = submission ? true : false
 
     const hasNullMessage = checkEmptyEnrollFields({ enrollData: enroll })
 
     hasNullMessage.map(col => {
         msgs.push({
-            type: 'MISSING_VALUES'
+            type: 'MISSING_VALUES',
+            field: col,
         })
     })
 
@@ -308,7 +336,9 @@ const enrollMiddlewares = async (req, res) => {
         messages: msgs,
         canRegister,
         cardFile,
-        filePath
+        filePath,
+        isSubmitted,
+        submission
     }
 }
 

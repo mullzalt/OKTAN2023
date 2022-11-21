@@ -2,7 +2,7 @@ import React from 'react'
 
 const InfoIsotermUpload = () => {
     return (
-        <div className='pt-5 w-full lg:w-1/2 px-4'>
+        <div className='pt-5 w-full px-4'>
             <div className="card bg-base-100 shadow-xl">
                 <div className="card-body">
                     <div className="card-title text-lg">

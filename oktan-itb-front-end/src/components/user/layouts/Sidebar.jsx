@@ -1,16 +1,18 @@
 import React from 'react';
 import Logo from '../../../assets/img/logo.png';
-import { BsPerson, BsAward } from 'react-icons/bs'
+import { BsPerson, BsAward, } from 'react-icons/bs'
 import { RiProfileLine } from 'react-icons/ri'
-import { MdOutlineDashboard, MdPayment, MdPayments } from "react-icons/md";
+import { MdOutlineDashboard, MdPayment, MdPayments, MdOutlineScience } from "react-icons/md";
 import { Link, NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { selectCurrentUser } from '../../../features/auth/authSlice';
+import { selectCurrentProfile, selectCurrentUser } from '../../../features/auth/authSlice';
+import { NotificationIndicator, NotificationWrapper } from '../../notifications/Notification';
 
 
 const Sidebar = () => {
 
     const user = useSelector(selectCurrentUser)
+    const profile = useSelector(selectCurrentProfile)
 
 
     return (
@@ -29,14 +31,36 @@ const Sidebar = () => {
                     {user?.role === 'peserta' ?
                         <div>
                             <li><div className="text-md font-bold cursor-default ">Kompetisi</div></li>
-                            <li><NavLink to={"/competitions"} className='text-sm'><BsAward className='text-2xl mr-2' />Daftar Kompetisi</NavLink></li>
 
-                            <li><NavLink to={"/mycompetitions"} className='text-sm'><RiProfileLine className='text-2xl mr-2' />Kompetisi Saya</NavLink></li>
+                            <li>
+                                <NavLink to={"/competitions"} className='text-sm'>
+                                    <BsAward className='text-2xl mr-2' />
+                                    Daftar Kompetisi
+                                    <NotificationIndicator memberId={profile.id} about={'ENROLLMENT'} />
+                                </NavLink>
+                            </li>
 
-                            <li><div className="text-md font-bold cursor-default">Pembayaran</div></li>
-                            <li><NavLink to={"/invoices/me"} className='text-sm'><MdPayment className='text-2xl mr-2' />Tagihan Saya</NavLink></li>
 
-                            <li><NavLink to={"/payments/me"} className='text-sm'><MdPayments className='text-2xl mr-2' />Riwayat Pembayaran</NavLink></li>
+                            <li><div className="text-md font-bold cursor-default ">Pembayaran</div></li>
+
+                            <li>
+                                <NavLink to={"/invoices"} className='text-sm'>
+                                    <MdPayment className='text-2xl mr-2' />
+                                    Tagihan dan Pembayaran
+                                    <NotificationIndicator memberId={profile.id} about={'INVOICE'} />
+                                </NavLink>
+                            </li>
+
+                            <li><div className="text-md font-bold cursor-default ">Kompetisi</div></li>
+
+                            <li>
+                                <NavLink to={"/submissions"} className='text-sm'>
+                                    <MdOutlineScience className='text-2xl mr-2' />
+                                    Karya Ilmiah
+                                    <NotificationIndicator memberId={profile.id} about={'SUBMISSION'} />
+                                </NavLink>
+                            </li>
+
                         </div>
                         : null
                     }
@@ -51,6 +75,11 @@ const Sidebar = () => {
                             <div>
                                 <li><div className="text-md font-bold cursor-default">Kompetisi</div></li>
                                 <li><NavLink to={"/moderator/competitions"} className='text-sm'><BsAward className='text-2xl mr-2' />Daftar Kompetisi</NavLink></li>
+                                <li><NavLink to={"/moderator/papers"} className='text-sm'><MdOutlineScience className='text-2xl mr-2' />Karya Ilmiah</NavLink></li>
+                            </div>
+                            <div>
+                                <li><div className="text-md font-bold cursor-default">Peserta</div></li>
+                                <li><NavLink to={"/moderator/members"} className='text-sm'><BsPerson className='text-2xl mr-2' />Daftar Peserta</NavLink></li>
                             </div>
                         </>
                         : null

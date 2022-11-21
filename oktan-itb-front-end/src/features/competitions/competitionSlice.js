@@ -33,21 +33,20 @@ export const competitionSlice = apiSlice.injectEndpoints({
         }),
 
         createEmptyCompetitions: builder.mutation({
-            query: ({ id, body }) => {
+            query: () => {
                 return {
-                    url: `/competitions/${id}`,
-                    method: 'PUT',
-                    body: body
+                    url: `/competitions/`,
+                    method: 'POST',
                 }
             }
         }),
 
         toogleArchiveCompetitions: builder.mutation({
-            query: ({ id, body }) => {
+            query: ({ id }) => {
                 return {
-                    url: `/competitions/${id}`,
+                    url: `/competitions/${id}/publish`,
                     method: 'PUT',
-                    body: body
+
                 }
             }
         })

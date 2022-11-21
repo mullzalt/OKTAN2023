@@ -25,7 +25,7 @@ export const ProfileLinkButton = ({ messages }) => {
     let haveEmpty = false
 
     const emptyMessage = messages.map(message => {
-        if (message.type === 'MISSING_VALUES') {
+        if (message.type === 'MISSING_VALUES' || message.type === 'DENIED') {
             return haveEmpty = true
         }
     })
@@ -33,7 +33,7 @@ export const ProfileLinkButton = ({ messages }) => {
     return (
         <div className="indicator">
             {haveEmpty ?
-                <span className="indicator-item badge badge-error text-white">!</span> : null
+                <span className="indicator-item badge badge-error text-white">{messages.length}</span> : null
             }
 
             <Link to={'enroll'} className='btn btn-primary'>
@@ -50,8 +50,9 @@ export const StatusBadge = ({ data }) => {
 
     const dispalyMessage = {
         allowed: <p className='text-warning font-bold'>Belum bayar</p>,
-        status: <p className=' font-bold'>Belum terverivikasi</p>,
-        tooltipAllowed: 'Belum memenuhi semua syarat',
+        status: <p className=' font-bold'>Harus memperbaharui form pendaftaran</p>,
+        tooltipAllowed: 'Upload ulang',
+        tooltipPaid: 'Belum bayar'
 
     }
 
@@ -61,10 +62,11 @@ export const StatusBadge = ({ data }) => {
 
     if (status !== 'ENROLLED' && status !== 'PENDING') {
         dispalyMessage.status = ''
+        dispalyMessage.tooltipAllowed = 'Sudah memenuhi semua syarat'
     }
 
-    if (status !== 'ENROLLED' && status !== 'PENDING' && isAllowed) {
-        dispalyMessage.tooltipAllowed = 'Sudah memenuhi semua syarat'
+    if (isAllowed) {
+        dispalyMessage.tooltipPaid = 'Sudah memenuhi administrasi'
     }
 
     if (status === 'ENROLLED') {
@@ -74,7 +76,7 @@ export const StatusBadge = ({ data }) => {
 
 
     return (
-        <div className="tooltip" data-tip={dispalyMessage.tooltipAllowed}>
+        <div className="tooltip" data-tip={`${dispalyMessage.tooltipPaid}, ${dispalyMessage.tooltipAllowed}`}>
             <div className="badge badge-ghost p-4 mr-2 gap-2">{dispalyMessage.allowed} {dispalyMessage.status}</div>
         </div>
 

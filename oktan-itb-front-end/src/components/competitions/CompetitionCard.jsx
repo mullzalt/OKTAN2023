@@ -13,10 +13,15 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { useGetCompetitionByIdQuery } from '../../features';
 import Pulse from '../loadings/Pulse';
+import { useSelector } from 'react-redux';
+import { useGetPapersByParIdQuery } from '../../features/competitions/submissionSlice';
+import { useGetParticipantByIdQuery } from '../../features/competitions/participantSlice';
+import { selectCurrentProfile } from '../../features/auth/authSlice';
+import Spinner from '../loadings/Spinner';
 
 
 
-const Card = (competition) => {
+const Card = ({ competition, messages }) => {
     const registerStart = useFormatDate(competition.register_start)
     const registerEnd = useFormatDate(competition.register_due)
     const price = useCurrencyFormat(competition.entry_fee)
@@ -28,6 +33,30 @@ const Card = (competition) => {
         return (
             <span className='badge badge-warning p-2 ml-4'>DITUTUP</span>
         )
+    }
+
+    const isRegisterOpen = () => {
+        const rO = new Date(competition.register_start)
+        const rC = new Date(competition.register_due)
+        const dateNow = new Date()
+
+        if (dateNow < rO || dateNow > rC) {
+            return false
+        }
+
+        return true
+    }
+
+    const errorMessage = () => {
+        let warnMsg = []
+
+        messages.map(msg => {
+            if (msg.type !== 'NEW' || msg.type !== 'ACCEPTED') {
+                warnMsg.push({ message: msg.message })
+            }
+        })
+
+        return warnMsg
     }
 
     return (
@@ -42,7 +71,15 @@ const Card = (competition) => {
 
                     <div >
                         <span className='mr-2 font-bold text-2xl'>{competition ? (`${competition.category}`) : ("Title")}</span>
-                        <span className="text-l">{competition ? (`${competition.title}`) : ("Title ")}</span>
+                        <span className="text-l mr-2">{competition ? (`${competition.title}`) : ("Title ")}</span>
+
+                        {errorMessage.length > 0
+                            ? <span className="text-l text-white font-bold badge badge-error">
+                                {errorMessage.length}
+                            </span>
+                            : null}
+
+
                     </div>
                     <hr />
 
@@ -94,7 +131,7 @@ const Card = (competition) => {
                     <div className=' card-actions justify-end'>
 
                         <span className='ml-2 text-xl font-semibold text-orange-500'>
-                            {!competition.isRegisterOpen ? closeBadge() : fees}
+                            {!isRegisterOpen() ? closeBadge() : fees}
                         </span>
                     </div>
 
@@ -107,7 +144,18 @@ const Card = (competition) => {
 
 const CompetitionCardItems = ({ id }) => {
 
-    const { data, isLoading, isError, isFetching, } = useGetCompetitionByIdQuery({ id: id, checkEnroll: true })
+
+    const profile = useSelector(selectCurrentProfile)
+
+    const {
+        data,
+        isLoading,
+        error,
+    } = useGetParticipantByIdQuery({ competitionId: id, memberId: profile.id })
+
+    if (error) {
+        return <Spinner message={'Terjadi kesalahan silahkan muat ulang...'} />
+    }
 
     if (isLoading) {
         return <Pulse />
@@ -116,12 +164,7 @@ const CompetitionCardItems = ({ id }) => {
 
     return (
         <React.Fragment>
-            {isLoading
-                ? <Pulse />
-                : isError
-                    ? (<>Something went wrong</>)
-                    : Card(data)
-            }
+            <Card competition={data.competition} messages={data.messages} />
         </React.Fragment>
     )
 }

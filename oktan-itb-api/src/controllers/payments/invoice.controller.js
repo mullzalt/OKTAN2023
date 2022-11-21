@@ -1,4 +1,6 @@
 const asyncHandler = require('express-async-handler');
+const { fn, col } = require('sequelize');
+const { BASE_URL } = require('../../configs/config');
 const { fileUploadHandler } = require('../../middlewares/fileHandler');
 const { BankAccount, Competition, Member, Invoice, MemberNotification, Participant } = require("../../models")
 const { Op } = require('../../models/db')
@@ -14,7 +16,8 @@ exports.sendInvoice = asyncHandler(async (req, res) => {
 
     const invoice = await Invoice.create({
         memberId: member.id,
-        competitionId: competition.id
+        competitionId: competition.id,
+        total_ammount: competition.entry_fee
     })
 
     await upsertMessage({
@@ -81,7 +84,8 @@ exports.getInvoicesLog = asyncHandler(async (req, res) => {
             { model: BankAccount, as: 'paymentTo' }
         ],
         limit: limit,
-        offset: offset
+        offset: offset,
+        order: [['updatedAt', 'ASC']]
     })
         .then(data => {
             const result = paginateResult(data, currentPage, limit)
@@ -130,9 +134,18 @@ exports.savePayments = asyncHandler(async (req, res) => {
         throw new Error('No invoice were found')
     }
 
+    if (!payment_to) {
+        res.status(422)
+        throw new Error('Please enter a target payment!')
+    }
+
     const bankAccount = await BankAccount.findOne({
         where: { id: payment_to }
     })
+        .catch(err => {
+            res.status(500)
+            throw err
+        })
 
     if (!bankAccount) {
         res.status(404)
@@ -144,8 +157,12 @@ exports.savePayments = asyncHandler(async (req, res) => {
         bank_number: bank_number,
         paymentToId: payment_to
     })
+        .catch(err => {
+            res.status(500)
+            throw err
+        })
 
-    return res.json({ invoice, bankAccount })
+    return res.json({ invoice })
 })
 
 
@@ -188,7 +205,7 @@ exports.verifyPayments = asyncHandler(async (req, res) => {
         verifyAction.isAllowedToJoin = true
     }
 
-    if (actions !== 'APPROVE' || actions !== 'REJECT') {
+    if (!actions) {
         res.status(422)
         return res.json({ message: 'Actions can only be either APPROVE or REJECT' })
     }
@@ -245,11 +262,14 @@ exports.verifyPayments = asyncHandler(async (req, res) => {
         })
     }
 
-    return res.json(invoice, participant)
+    res.status(200)
+    return res.json({ invoice, participant })
 })
 
 exports.getInvoiceById = asyncHandler(async (req, res) => {
     const { invoiceId } = req.params
+
+    const fileUrl = `${BASE_URL}public/uploads/payments/`
 
     const invoice = await Invoice.findOne({
         where: { id: invoiceId },
@@ -257,7 +277,24 @@ exports.getInvoiceById = asyncHandler(async (req, res) => {
             { model: Competition, as: 'competition' },
             { model: Member, as: 'member' },
             { model: BankAccount, as: 'paymentTo' },
-        ]
+        ],
+        attributes: {
+            include: [[fn('CONCAT', fileUrl, col('competition.category'), '/', col('competition.id'), '/'), 'base_url']]
+        }
+    }).then(data => {
+
+
+
+        return { ...data.toJSON() }
+    })
+
+    const messages = await MemberNotification.findAll({
+        where: {
+            competitionId: invoice.competitionId,
+            memberId: invoice.memberId,
+            about: 'INVOICE',
+            type: { [Op.ne]: 'NEW' }
+        }
     })
 
     if (!invoice) {
@@ -265,7 +302,9 @@ exports.getInvoiceById = asyncHandler(async (req, res) => {
         throw new Error('Invoice not found')
     }
 
-    return res.json(invoice)
+    const file_url = invoice.proof_file ? `${invoice.base_url}/${encodeURIComponent(invoice.proof_file.trim())}` : null
+
+    return res.json({ ...invoice, messages, file_url })
 })
 
 exports.uploadPaymentProof = asyncHandler(async (req, res) => {
@@ -273,13 +312,21 @@ exports.uploadPaymentProof = asyncHandler(async (req, res) => {
 
     const upload = await fileUploadHandler({
         files: req.file,
-        nameFormats: `[PAYMENTPROOF]_[${member.id}]_[${competition.id}]`,
+        nameFormats: `[PAYMENTPROOF]_[${member.name}]_[${competition.category}]_[${competition.title}]_[${member.id}]`,
         folders: `payments/${competition.category}/${competition.id}`,
         fileFormats: ['pdf', 'png', 'jpg', 'jpeg']
     })
 
     await invoice.update({
         proof_file: upload.filename
+    })
+
+    await MemberNotification.destroy({
+        where: {
+            memberId: member.id,
+            competitionId: competition.id,
+            about: 'INVOICE'
+        }
     })
 
     return res.status(200).json({ message: 'Upload proof success!' })
@@ -377,13 +424,24 @@ const checkEmptyInvoiceFields = ({ invoiceData }) => {
     }
 }
 
-const upsertMessage = async ({ competitionId, memberId, about, type, messages }) => {
+const upsertMessage = async ({ competitionId, memberId, about, type, messages, actions }) => {
     return await MemberNotification.findOne({
-        where: { competitionId: competitionId, memberId: memberId, about: about, type: type }
+        where: { competitionId: competitionId, memberId: memberId, about: about }
     })
         .then(async (data) => {
+            if (data && actions === 'DELETE') {
+                data.destroy()
+
+                return
+            }
+
+            if (!data && actions === 'DELETE') {
+                return
+            }
+
             if (data) return await data.update({
-                message: messages
+                message: messages,
+                type: type
             })
 
             return await MemberNotification.create({

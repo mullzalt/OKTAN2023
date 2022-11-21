@@ -1,4 +1,5 @@
 import React from 'react'
+import { useState } from 'react'
 import { useEffect } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { BiInfoCircle, BiPlusMedical, BiTrash } from 'react-icons/bi'
@@ -48,12 +49,15 @@ export const Requirements = ({ requirement }) => {
     )
 }
 
-const MessagesContainer = ({ requirement, header }) => {
+export const MessagesContainer = ({ value, header }) => {
     return (
         <>
             {header}
-            <div className="form-control py-2">
-                <textarea className="textarea" placeholder="Tidak ada pesan"></textarea>
+            <div className="form-control py-2 bg-base-200 ">
+                <RichTextEditor
+                    readOnly={true}
+                    value={value}
+                />
             </div>
         </>
     )
@@ -68,35 +72,62 @@ export const InformationCard = ({ participant, competition }) => {
     )
 }
 
-export const ActionsForm = () => {
+export const ActionsForm = ({ onClick, selected, message }) => {
+    const { register, handleSubmit, getValues, setValue, formState: { errors } } = useForm({
+        defaultValues: {
+            message: message || '',
+            actions: selected || '',
+        },
+        mode: 'onChange'
+    })
+
+    const onClickHandle = (data) => {
+        onClick(data)
+    }
+
     return (
         <div className="form-control ">
-            <div className="btn-group flex justify-center gap-2" key={'status'}>
-                <input
-                    type="radio"
-                    name="status"
-                    data-title="APPROVE"
-                    value='PAIDOFF'
-                    className="btn btn-lg btn-outline btn-success col-span-1" />
+            <form onSubmit={handleSubmit(onClickHandle)}>
 
-                <input
-                    type="radio"
-                    name="status"
-                    data-title="TOLAK"
-                    value='REJECTED'
-                    className="btn btn-lg btn-outline btn-error col-span-1" />
-            </div>
+                <div className='mb-5'>
+                    <RichTextEditor
+                        placeholder={'tulis pesan...'}
+                        onChange={dat => { setValue('message', dat) }}
+                        value={getValues(message)}
+                    />
 
-            <div className="form-control py-2 mt-6">
-                <div className="grid grid-cols-4 gap-4">
-                    <input type="submit" class="btn btn-primary px-10 col-span-4" value={'Kirim'} />
                 </div>
-            </div>
+
+
+                <div className="btn-group flex justify-center gap-2" key={'status'}>
+                    <input {...register('actions')}
+                        type="radio"
+                        data-title="APPROVE"
+                        value='ACCEPT'
+                        className="btn btn-lg btn-outline btn-success col-span-1" />
+
+                    <input {...register('actions')}
+                        type="radio"
+                        data-title="TOLAK"
+                        value='REJECT'
+                        className="btn btn-lg btn-outline btn-error col-span-1" />
+                </div>
+
+                <div className="form-control py-2 mt-6">
+                    <div className="grid grid-cols-4 gap-4">
+                        <input type="submit"
+                            class="btn btn-primary px-10 col-span-4"
+                            value={'Kirim'} />
+                    </div>
+                </div>
+                {errors.action && <span>error</span>}
+            </form>
+
         </div>
     )
 }
 
-export const EnrollProfile = ({ enrollData, fileUrl, children, memberData }) => {
+export const EnrollProfile = ({ enrollData, fileUrl, children, memberData, header }) => {
     const MissingValues = () => {
         return (
             <span className='italic font-thin text-error'>Kosong</span>
@@ -105,8 +136,9 @@ export const EnrollProfile = ({ enrollData, fileUrl, children, memberData }) => 
 
     return (
         <div className='lg:col-span-8 order-last lg:order-none card shadow-2xl'>
-            <div className='card-title bg-accent p-4 rounded text-white uppercase'>
-                {enrollData.team_name}
+            <div className='card-title bg-accent p-4 rounded text-white flex justify-between'>
+                <span className='uppercase'>{enrollData.team_name}</span>
+                {header}
             </div>
 
             <div className="card-body py-4">
@@ -161,7 +193,9 @@ export const EnrollProfile = ({ enrollData, fileUrl, children, memberData }) => 
 }
 
 export const FormEnrollNew = ({ participantData, memberData, competitionData, onSubmit, isLoading }) => {
-    const { control, register, unregister, handleSubmit, getValues, reset, formState: { errors, isValid } } = useForm({
+    const payment_method = competitionData.payment_method
+
+    const { control, register, unregister, handleSubmit, getValues, setValue, reset, formState: { errors, isValid } } = useForm({
         defaultValues: {
             team_name: participantData?.team_name || '',
             team_members: participantData?.team_members || [
@@ -169,6 +203,7 @@ export const FormEnrollNew = ({ participantData, memberData, competitionData, on
             ],
             mentor_name: participantData?.mentor_name || '',
             mentor_number: participantData?.mentor_number || '',
+            isSendInvoice: false,
             file: {}
         },
         mode: 'onChange'
@@ -179,6 +214,13 @@ export const FormEnrollNew = ({ participantData, memberData, competitionData, on
         name: "team_members",
         shouldUnregister: true
     });
+
+    useEffect(() => {
+        if (payment_method !== 'FREE') {
+            setValue('isSendInvoice', true)
+        }
+
+    }, [setValue, payment_method])
 
     const enrollHandle = (data) => {
 

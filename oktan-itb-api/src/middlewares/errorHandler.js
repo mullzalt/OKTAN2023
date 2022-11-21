@@ -1,22 +1,22 @@
 const { NODE_ENV } = require("../configs/config")
 
 const errorHandler = (err, req, res, next) => {
-    if(!err) return next()
-    const statusCode = res.statusCode ? res.statusCode : 500
-  
-    res.status(statusCode)
+  if (!err) return next()
+  const statusCode = res.statusCode ? res.statusCode : 500
 
-    const message = err.message
-    const errors = err?.errors ? err.errors : undefined
-    const stack = (NODE_ENV === 'production') ? undefined : err?.stack
-  
-    const errorMessage = {
-        message, errors, stack
-    }
+  res.status(statusCode)
 
-    res.json(errorMessage)
+  const message = err.message
+  const errors = err?.errors ? err.errors : undefined
+  const stack = (NODE_ENV === 'production') ? undefined : err?.stack
+
+  const errorMessage = {
+    message, errors, stack
   }
-  
-  module.exports = {
-    errorHandler,
-  }
+
+  res.json(errorMessage)
+}
+
+module.exports = {
+  errorHandler,
+}

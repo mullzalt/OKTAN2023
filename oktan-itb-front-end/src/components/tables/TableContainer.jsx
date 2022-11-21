@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { useEffect } from 'react'
 import { useState } from 'react'
+import { BiPlus } from 'react-icons/bi'
+import { AiOutlineLoading3Quarters } from 'react-icons/ai'
 
 
 const rowHandler = ({ rows }) => {
@@ -30,11 +32,30 @@ const TableHead = ({ header }) => {
     )
 }
 
-const EmptyMessage = () => {
+const EmptyMessage = ({ message }) => {
     return (
         <div className='w-full flex justify-center bg-base-200 p-20'>
-            <h1 className='text-2xl'>Tidak ada data untuk ditampilkan...</h1>
+            <h1 className='text-2xl'>{message ? message : 'Tidak ada data untuk ditampilkan...'}</h1>
         </div>
+    )
+}
+
+const AddButton = ({ isLoading, onClick }) => {
+    return (
+        <div className='fixed bottom-0 right-0 w-16 h-16 mr-12 mb-8 cursor-pointer '>
+            <button
+                onClick={onClick}
+                disabled={isLoading}
+                className='btn btn-circle btn-success shadow-2xl'
+            >
+                {isLoading
+                    ? <AiOutlineLoading3Quarters className='text-white text-2xl animate-spin' />
+                    : <BiPlus className=' text-white text-2xl ' />
+                }
+
+            </button>
+        </div>
+
     )
 }
 
@@ -119,6 +140,6 @@ const TableContainer = ({ className, headers, rows }) => {
     )
 }
 
-export { EmptyMessage, SearchBar, ItemCounters, FilterRadio }
+export { EmptyMessage, SearchBar, ItemCounters, FilterRadio, AddButton }
 
 export default TableContainer

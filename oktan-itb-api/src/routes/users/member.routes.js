@@ -10,6 +10,10 @@ router.route('/').get([
     verifyToken, isModerator
 ], member.getMembers)
 
+router.route('/:memberId').get([
+    verifyToken, isModerator
+], member.getMemberById)
+
 router.route('/:memberId').put([
     verifyToken, memberEditProfile
 ], member.editProfile)

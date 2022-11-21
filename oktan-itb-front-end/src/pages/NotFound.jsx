@@ -17,10 +17,10 @@ const NotFound = () => {
                             <span className='text-2xl font-semibold'>Halaman tidak ditemukan</span>
                         </div>
                         <div className="flex items-center justify-center gap-2">
-                            <Link to={"/login"} replace={true} className='btn btn-ghost btn-lg link'>
+                            <Link to={-1} replace={true} className='btn btn-ghost btn-lg link'>
 
                                 <div className='text-2xl font-bold text-base-content normal-case ml-2'>
-                                    Kembali ke halaman utama
+                                    Kembali
                                 </div>
                             </Link>
                         </div>

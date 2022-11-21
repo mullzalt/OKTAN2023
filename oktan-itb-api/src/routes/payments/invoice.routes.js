@@ -42,7 +42,6 @@ router.route('/moderators')
 router.route('/moderators/:invoiceId')
     .get([
         verifyToken,
-        isModerator
     ], invoice.getInvoiceById)
     .put([
         verifyToken,

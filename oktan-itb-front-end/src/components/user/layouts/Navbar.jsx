@@ -8,7 +8,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useLogoutMutation } from '../../../features/auth/authApiSlice';
 
-import { destroyCredentials, selectCurrentUser } from '../../../features/auth/authSlice'
+import { destroyCredentials, selectCurrentProfile, selectCurrentUser } from '../../../features/auth/authSlice'
+import Notification from '../../notifications/Notification';
 import Spinner from '../../Spinner';
 
 
@@ -19,6 +20,7 @@ const Navbar = (props) => {
     const [logout, { isError, isLoading, isSuccess }] = useLogoutMutation()
 
     const user = useSelector(selectCurrentUser)
+    const profile = useSelector(selectCurrentProfile)
 
 
     useEffect(() => {
@@ -64,12 +66,10 @@ const Navbar = (props) => {
                     </ul>
                 </div> */}
 
-                <label tabIndex={0} className="btn btn-ghost btn-circle">
-                    <div className="indicator">
-                        <RiNotification2Line />
-                        <span className="badge badge-sm indicator-item badge-error text-white">8</span>
-                    </div>
-                </label>
+                {
+                    user?.role === 'peserta' && <Notification memberId={profile.id} />
+                }
+
 
 
 

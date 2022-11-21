@@ -16,10 +16,21 @@ import Dashboard from './pages/user/Dashboard';
 import EmailVerified from './pages/publics/EmailVerified';
 import CompetitionDetail from './pages/moderator/competitions/CompetitionDetail';
 import { CompetitionList, ParticipantList } from './pages/moderator';
-import MyCompetitions from './pages/member/MyCompetitions';
 import CompetitionListsMember from './pages/member/CompetitionLists';
 import CompetitionDetailsMember from './pages/member/CompetitionDetails';
 import EnrollCompetition from './pages/member/EnrollCompetition';
+import ParticipantDetail from './pages/moderator/competitions/ParticipantDetail';
+import InvoicesLists from './pages/member/InvoicesLists';
+import InvoiceDetail from './pages/member/InvoiceDetail';
+import InvoicePay from './pages/member/InvoicePay';
+import PaymentsLog from './pages/moderator/payments/PaymentsLog';
+import PaymentDetail from './pages/moderator/payments/PaymentDetail';
+import MemberLists from './pages/moderator/members/MemberLists';
+import MemberDetail from './pages/moderator/members/MemberDetail';
+import SubmissionPage from './pages/member/SubmissionPage';
+import SubmissionForm from './pages/member/SubmissionForm';
+import PaperLists from './pages/moderator/papers/PaperLists';
+import PaperDetail from './pages/moderator/papers/PaperDetail';
 
 
 function App() {
@@ -38,10 +49,15 @@ function App() {
 
           <Route element={< RequireAuth />}>
             <Route path='/dashboard' element={<Dashboard />} />
-            <Route path='/mycompetitions' element={<MyCompetitions />} />
             <Route path='/competitions' element={<CompetitionListsMember />} />
             <Route path='/competitions/:id' element={<CompetitionDetailsMember />} />
             <Route path='/competitions/:id/enroll' element={<EnrollCompetition />} />
+            <Route path='/invoices' element={<InvoicesLists />} />
+            <Route path='/invoices/:id' element={<InvoiceDetail />} />
+            <Route path='/invoices/:id/pay' element={<InvoicePay />} />
+
+            <Route path='/submissions' element={<SubmissionPage />} />
+            <Route path='/submissions/:competitionId/members/:memberId/submit' element={<SubmissionForm />} />
           </Route>
 
 
@@ -51,6 +67,16 @@ function App() {
               <Route path='competitions' element={<CompetitionList />} />
               <Route path='competitions/:id/edit' element={<CompetitionDetail />} />
               <Route path='competitions/:id/members' element={<ParticipantList />} />
+              <Route path='competitions/:id/members/:memberId' element={<ParticipantDetail />} />
+
+              <Route path='payments' element={<PaymentsLog />} />
+              <Route path='payments/:id' element={<PaymentDetail />} />
+
+              <Route path='members' element={<MemberLists />} />
+              <Route path='members/:id' element={<MemberDetail />} />
+
+              <Route path='papers' element={<PaperLists />} />
+              <Route path='papers/:competitionId/members/:memberId' element={<PaperDetail />} />
             </Route>
           </Route>
 

@@ -55,6 +55,18 @@ const CompetitionDetailsMember = () => {
         CBT: 'Test Berbasis Komputer (CBT)'
     }
 
+    const isRegisterOpen = (competition) => {
+        const rO = new Date(competition.register_start)
+        const rC = new Date(competition.register_due)
+        const dateNow = new Date()
+
+        if (dateNow < rO || dateNow > rC) {
+            return false
+        }
+
+        return true
+    }
+
     return (
         <div>
             <div className="flex justify-between py-2">
@@ -69,10 +81,10 @@ const CompetitionDetailsMember = () => {
                     <p>{data.competition?.title}</p>
 
                 </div>
-                <div>
+                <div className='grid gap-2 grid-cols-1 md:grid-cols-2'>
                     {data.isEnrolled ? <StatusBadge data={data.enroll} /> : null}
-                    {data.isEnrolled ? <ProfileLinkButton messages={data.messages} /> : null}
 
+                    <span className='justify-self-end'>{data.isEnrolled ? <ProfileLinkButton messages={data.messages} /> : null}</span>
                 </div>
             </div>
 
@@ -92,7 +104,7 @@ const CompetitionDetailsMember = () => {
 
             </div>
             <div className="flex justify-end gap-2 py-2">
-                {!data.isEnrolled ? <EnrollLinkButton /> : null}
+                {!data.isEnrolled && isRegisterOpen(data.competition) ? <EnrollLinkButton /> : null}
 
             </div>
         </div>

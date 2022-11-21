@@ -1,11 +1,15 @@
 import React from 'react'
+import { useEffect } from 'react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import Pulse from '../../../components/loadings/Pulse'
 import Spinner from '../../../components/loadings/Spinner'
 import { ModeratorCompetitionItem } from '../../../components/moderator'
-import { FilterRadio, SearchBar } from '../../../components/tables/TableContainer'
+import { FilterRadio, SearchBar, AddButton } from '../../../components/tables/TableContainer'
 import { Layout } from '../../../components/user'
 import { useGetCompetitionsQuery } from '../../../features'
+import { useCreateEmptyCompetitionsMutation } from '../../../features/competitions/competitionSlice'
 
 
 const fiterOptions = [
@@ -20,14 +24,46 @@ const categoryOptions = [
 
 const CompetitionList = () => {
 
+  const navigate = useNavigate()
+
   const [queryParams, setQueryParams] = useState({
     where: '',
     drafted: 'false',
     category: ''
   })
 
+  const [createCompetition, {
+    data: createData,
+    isLoading: isCreateLoading,
+    isError: isCreateError,
+    error: createError,
+    isSuccess: isCreateSuccess }]
+    = useCreateEmptyCompetitionsMutation()
 
-  const { data, error, isLoading } = useGetCompetitionsQuery(queryParams)
+  const { data, error, isLoading, refetch } = useGetCompetitionsQuery(queryParams)
+
+  useEffect(() => {
+    if (isCreateError) {
+      toast.error(error.message)
+    }
+
+    if (isCreateSuccess) {
+      toast.success('Berhasil menambahkan data')
+      refetch()
+      navigate(createData.id + '/edit')
+    }
+
+
+  }, [createError, isCreateLoading, isCreateError, createData, isCreateSuccess, refetch])
+
+  const createHandle = async (e) => {
+    e.preventDefault()
+    try {
+      const newCompetition = await createCompetition()
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
 
   return (
     <React.Fragment>
@@ -70,6 +106,8 @@ const CompetitionList = () => {
             })
         }
       </div>
+
+      <AddButton isLoading={false} onClick={createHandle} />
     </React.Fragment>
   )
 }
