@@ -289,12 +289,7 @@ const enrollMiddlewares = async (req, res) => {
             throw err
         })
 
-    const submission = await Submission.findOne({
-        where: { participantId: enroll.id }
-    }).catch(err => {
-        res.status(500)
-        throw err
-    })
+
 
     let msgs = []
 
@@ -312,8 +307,21 @@ const enrollMiddlewares = async (req, res) => {
         })
         .catch(err => { throw err })
 
+    let isSubmitted
+    let submission
+
     const isEnrolled = enroll ? true : false
-    const isSubmitted = submission ? true : false
+
+    if (isEnrolled) {
+        submission = await Submission.findOne({
+            where: { participantId: enroll?.id }
+        }).catch(err => {
+            res.status(500)
+            throw err
+        })
+        isSubmitted = submission ? true : false
+    }
+
 
     const hasNullMessage = checkEmptyEnrollFields({ enrollData: enroll })
 
