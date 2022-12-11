@@ -1,8 +1,8 @@
 import React from 'react';
 import Logo from '../../../assets/img/logo.png';
-import { BsPerson, BsAward, } from 'react-icons/bs'
+import { BsPerson, BsAward, BsBell, BsNewspaper, } from 'react-icons/bs'
 import { RiProfileLine } from 'react-icons/ri'
-import { MdOutlineDashboard, MdPayment, MdPayments, MdOutlineScience } from "react-icons/md";
+import { MdOutlineDashboard, MdPayment, MdPayments, MdOutlineScience, MdNotificationAdd, MdPerson } from "react-icons/md";
 import { Link, NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectCurrentProfile, selectCurrentUser } from '../../../features/auth/authSlice';
@@ -79,7 +79,11 @@ const Sidebar = () => {
                             </div>
                             <div>
                                 <li><div className="text-md font-bold cursor-default">Peserta</div></li>
-                                <li><NavLink to={"/moderator/members"} className='text-sm'><BsPerson className='text-2xl mr-2' />Daftar Peserta</NavLink></li>
+                                <li><NavLink to={"/moderator/members"} className='text-sm'><MdPerson className='text-2xl mr-2' />Daftar Peserta</NavLink></li>
+                            </div>
+                            <div>
+                                <li><div className="text-md font-bold cursor-default">Pemberitahuan</div></li>
+                                <li><NavLink to={"/moderator/notifications/send"} className='text-sm'><MdNotificationAdd className='text-2xl mr-2' />Kirim Notifikasi</NavLink></li>
                             </div>
                         </>
                         : null

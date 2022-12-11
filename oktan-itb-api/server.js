@@ -11,9 +11,7 @@ const ApiRouter = require('./src/routes');
 const corsOptions = require('./src/configs/corsOptions');
 const credentials = require('./src/middlewares/credentials');
 const { __BASEDIR } = require('./src/configs/config');
-
-
-
+const WebSocket = require('./src/websocket/SocketIo').Socket
 
 const app = express();
 
@@ -32,6 +30,9 @@ app.use('/v1/', ApiRouter)
 
 app.use(errorHandler)
 
+const server = require('http').createServer(app)
+const io = new WebSocket(server)
 
-app.listen(8000);
+server.listen(8000)
+io.listen()
 

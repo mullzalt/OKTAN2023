@@ -5,11 +5,11 @@ import path from 'path'
 import compression from 'compression'
 import helmet from 'helmet'
 
-
 import corsOptions from './configs/corsOptions'
 
 class App {
     public app: Application
+
 
     constructor() {
         this.app = express()

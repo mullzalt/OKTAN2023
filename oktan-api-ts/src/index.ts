@@ -1,5 +1,4 @@
 import App from "./App";
-import 'dotenv/config'
 
 import { PORT } from './configs'
 

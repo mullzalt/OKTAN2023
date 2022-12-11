@@ -31,6 +31,7 @@ import SubmissionPage from './pages/member/SubmissionPage';
 import SubmissionForm from './pages/member/SubmissionForm';
 import PaperLists from './pages/moderator/papers/PaperLists';
 import PaperDetail from './pages/moderator/papers/PaperDetail';
+import CreateNotifications from './pages/moderator/news/CreateNotifications';
 
 
 function App() {
@@ -77,6 +78,8 @@ function App() {
 
               <Route path='papers' element={<PaperLists />} />
               <Route path='papers/:competitionId/members/:memberId' element={<PaperDetail />} />
+
+              <Route path='notifications/send' element={<CreateNotifications />} />
             </Route>
           </Route>
 
